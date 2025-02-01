@@ -1,16 +1,57 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, Animated } from 'react-native';
+import { StyleSheet, Text, View, Animated, Easing } from 'react-native';
 import { IntroductionRandomText, LoadingText } from './utils/texts';
-import { LoadingMessageTime } from './utils/animation';
+import { LoadingMessageTime, OutAnimation } from './utils/animation';
+
+import Onboarding from './main'; 
 
 export default function App() {
   const [fadeAnim] = useState(new Animated.Value(0));
+  const [moveFadeAnim] = useState(new Animated.Value(0));
+  const [loadingAnim] = useState(new Animated.Value(0));
   const [currentText, setCurrentText] = useState(IntroductionRandomText());
+  const [assetsLoaded, setAssetsLoaded] = useState(false);
+  const [startPosition, setStartPosition] = useState(0);
   const most_recent_used = useRef(currentText);
 
+  const handleLayout = (event) => {
+    const { y } = event.nativeEvent.layout;
+    setStartPosition(y); 
+    moveFadeAnim.setValue(y); 
+  };
+
   useEffect(() => {
-    Animated.loop(
+    const intervalId = setInterval(() => {
+      const random_text = IntroductionRandomText();
+      if (most_recent_used.current !== random_text) {
+        most_recent_used.current = random_text;
+        setAssetsLoaded(true);
+        setCurrentText(random_text);
+
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: LoadingMessageTime("FadeIn"),
+          useNativeDriver: true,
+        }).start();
+
+        Animated.timing(moveFadeAnim, {
+          toValue: OutAnimation("FadeOutPosition"),
+          duration: OutAnimation("FadeOutTime"),
+          easing: Easing.inOut(Easing.cubic),
+          useNativeDriver: true,
+        }).start();
+
+        Animated.timing(loadingAnim, {
+          toValue: -OutAnimation("FadeOutPosition"),
+          duration: OutAnimation("FadeOutTime"),
+          easing: Easing.inOut(Easing.cubic),
+          useNativeDriver: true,
+        }).start();
+      }
+    }, LoadingMessageTime("MessageChangeInterval"));
+  
+    const animation = Animated.loop(
       Animated.sequence([
         Animated.timing(fadeAnim, {
           toValue: 1,
@@ -23,24 +64,57 @@ export default function App() {
           duration: LoadingMessageTime("FadeOut"),
           useNativeDriver: true,
         }),
-      ])
-    ).start();
+      ]),
+    );
+  
+    animation.start();
+  
+    return () => {
+      clearInterval(intervalId);
+      animation.stop(); 
+    };
+  }, []);
 
-    const intervalId = setInterval(() => {
-      const random_text = IntroductionRandomText();
-      if (most_recent_used.current !== random_text) {
-        most_recent_used.current = random_text;
-        setCurrentText(random_text);
-      }
-    }, LoadingMessageTime("MessageChangeInterval"));
+  useEffect(() => {
+    if (assetsLoaded) {
+      console.log("Assets loaded");
+    }
+  }, [assetsLoaded]);
 
-    return () => clearInterval(intervalId);
-  }, [fadeAnim]);
+  useEffect(() => {
+    if (!assetsLoaded) {
+      const timeout = setTimeout(() => {
+        setAssetsLoaded(true);
+      }, 3000); 
+  
+      return () => clearTimeout(timeout);
+    }
+  }, [assetsLoaded]);
+  
+
+  if (assetsLoaded) {
+    setTimeout(() => {
+      return <Onboarding />;
+    }, OutAnimation("FadeOutTime"));
+  }
 
   return (
     <View style={styles.container}>
-      <Text>{LoadingText()}</Text>
-      <Animated.Text style={{ opacity: fadeAnim, fontSize: 24 }}>
+      <Animated.Text 
+        style={{
+          transform: [{ translateY: loadingAnim }],
+          fontSize: 16, 
+        }}
+      >
+        {LoadingText()}
+      </Animated.Text>
+      <Animated.Text 
+        style={{ 
+          opacity: fadeAnim, 
+          transform: [{ translateY: moveFadeAnim }],
+          fontSize: 24 
+        }}
+      >
         {currentText}
       </Animated.Text>
       <StatusBar style="auto" />
