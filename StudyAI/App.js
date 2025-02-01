@@ -1,10 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, Text, View, Animated, Easing } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+
+import LoginScreen from './components/HomeScreen';
 import { IntroductionRandomText, LoadingText } from './utils/texts';
 import { LoadingMessageTime, OutAnimation } from './utils/animation';
 
-import Onboarding from './main'; 
+const Stack = createStackNavigator();
 
 export default function App() {
   const [fadeAnim] = useState(new Animated.Value(0));
@@ -14,12 +18,6 @@ export default function App() {
   const [assetsLoaded, setAssetsLoaded] = useState(false);
   const [startPosition, setStartPosition] = useState(0);
   const most_recent_used = useRef(currentText);
-
-  const handleLayout = (event) => {
-    const { y } = event.nativeEvent.layout;
-    setStartPosition(y); 
-    moveFadeAnim.setValue(y); 
-  };
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -71,15 +69,9 @@ export default function App() {
   
     return () => {
       clearInterval(intervalId);
-      animation.stop(); 
+      animation.stop();
     };
   }, []);
-
-  useEffect(() => {
-    if (assetsLoaded) {
-      console.log("Assets loaded");
-    }
-  }, [assetsLoaded]);
 
   useEffect(() => {
     if (!assetsLoaded) {
@@ -90,42 +82,46 @@ export default function App() {
       return () => clearTimeout(timeout);
     }
   }, [assetsLoaded]);
-  
 
-  if (assetsLoaded) {
-    setTimeout(() => {
-      return <Onboarding />;
-    }, OutAnimation("FadeOutTime"));
+  if (!assetsLoaded) {
+    return (
+      <View style={styles.container}>
+        <Animated.Text 
+          style={{
+            transform: [{ translateY: loadingAnim }],
+            fontSize: 16, 
+          }}
+        >
+          {LoadingText()}
+        </Animated.Text>
+        <Animated.Text 
+          style={{ 
+            opacity: fadeAnim, 
+            transform: [{ translateY: moveFadeAnim }],
+            fontSize: 24 
+          }}
+        >
+          {currentText}
+        </Animated.Text>
+        <StatusBar style="auto" />
+      </View>
+    );
   }
 
   return (
-    <View style={styles.container}>
-      <Animated.Text 
-        style={{
-          transform: [{ translateY: loadingAnim }],
-          fontSize: 16, 
-        }}
-      >
-        {LoadingText()}
-      </Animated.Text>
-      <Animated.Text 
-        style={{ 
-          opacity: fadeAnim, 
-          transform: [{ translateY: moveFadeAnim }],
-          fontSize: 24 
-        }}
-      >
-        {currentText}
-      </Animated.Text>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen name="Home" component={LoginScreen} />
+      </Stack.Navigator>
       <StatusBar style="auto" />
-    </View>
+    </NavigationContainer>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ff',
+    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },
