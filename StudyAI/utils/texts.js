@@ -3,12 +3,12 @@ export const IntroductionRandomText = () => {
         "While you're waiting, enjoy some tea!",
         "Getting everything ready for you.",
         "Did you know (Insert fact). I bet you didn't know that did you?",
-        "hi josh",
+        "Insert Cool Fact Here",
         "knock knock",
         "Note: We (yes we) are coders",
-        "josh the nut can",
-        "oh salinas",
-        "guess what",
+        "Whats going on",
+        "This might take awhile..",
+        "Wow!",
     ]
     return texts[Math.floor(Math.random() * texts.length)]
 };

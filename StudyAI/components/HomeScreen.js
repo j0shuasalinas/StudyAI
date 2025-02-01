@@ -27,7 +27,7 @@ const LoginScreen = ({ navigation }) => {
           <TouchableOpacity>
             <Text style={styles.navItem}>Assignments</Text>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
             <Text style={styles.navItem}>Settings</Text>
           </TouchableOpacity>
         </View>

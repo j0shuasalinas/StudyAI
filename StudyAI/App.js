@@ -5,6 +5,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import LoginScreen from './components/HomeScreen';
+import SettingsScreen from './components/SettingsScreen'; 
+
 import { IntroductionRandomText, LoadingText } from './utils/texts';
 import { LoadingMessageTime, OutAnimation } from './utils/animation';
 
@@ -112,6 +114,7 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Home" component={LoginScreen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>
@@ -125,4 +128,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+
 });
