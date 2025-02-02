@@ -4,6 +4,11 @@ import profilePicture from '../assets/basic_pfp.jpg';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import { Switch } from 'react-native-gesture-handler';
 
+import * as Font from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+
+SplashScreen.preventAutoHideAsync();
+
 const SECTIONS = [
     {
         header: "Preferences",
@@ -47,8 +52,9 @@ export default function SettingsScreen() {
 
                     <Text style={[styles.profileName, isDarkMode && styles.darkText]}>John Doe</Text>
                     <Text style={[styles.profileAddress, isDarkMode && styles.darkSubText]}>
-                        123 Maple Street, Anytown, PA, 24124
+                        @username or example@gmail.com ??? which one
                     </Text>
+                    
                 </View>
 
                 {SECTIONS.map(({ header, items }) => (
@@ -69,6 +75,8 @@ export default function SettingsScreen() {
                                         <Switch
                                             value={form[id]}
                                             onValueChange={value => setForm({ ...form, [id]: value })}
+                                            // thumbColor={form[id] ? '#4d25c4' : '#fff'}
+                                            trackColor={{ false: '#767577', true: '#4d25c4' }}
                                         />
                                     )}
 
@@ -89,9 +97,11 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#fff",
+        borderColor: '#e1dded',
     },
     darkContainer: {
-        backgroundColor: "#121212",
+        backgroundColor: "#17151c",
+        borderColor: '#e1dded',
     },
     scrollContainer: {
         paddingVertical: 24,
@@ -101,27 +111,31 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     profileName: {
-        marginTop: 20,
-        fontSize: 19,
+        marginTop: 10,
+        fontSize: 25,
+        fontFamily: "Afacad",
         fontWeight: '600',
         color: '#414d63',
         textAlign: 'center',
     },
     darkText: {
         color: "#ffffff",
+        fontFamily: "Afacad",
     },
     darkSubText: {
         color: "#aaaaaa",
+        fontFamily: "Afacad",
     },
     profileAddress: {
         marginTop: 5,
         fontSize: 16,
+        fontFamily: "Afacad",
         color: '#989898',
         textAlign: 'center',
     },
     profileAvatar: {
-        width: 72,
-        height: 72,
+        width: 100,
+        height: 100,
         borderRadius: 9999,
     },
     profileAvatarWrapper: {
@@ -133,8 +147,8 @@ const styles = StyleSheet.create({
         borderRadius: 9999,
         backgroundColor: "#007bff",
         position: 'absolute',
-        right: -4,
-        bottom: -10,
+        right: 0,
+        bottom: 0,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -143,8 +157,9 @@ const styles = StyleSheet.create({
     },
     sectionHeader: {
         paddingVertical: 12,
-        fontSize: 12,
+        fontSize: 15,
         fontWeight: '600',
+        fontFamily: "Afacad",
         color: "#9e9e9e",
         textTransform: 'uppercase',
         letterSpacing: 1.1,
@@ -156,19 +171,24 @@ const styles = StyleSheet.create({
         height: 50,
         backgroundColor: '#f2f2f2',
         borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#e1dded',
         marginBottom: 12,
         paddingHorizontal: 12,
     },
     darkRow: {
-        backgroundColor: "#1E1E1E",
+        backgroundColor: "#201e26",
+        borderColor: '#464252',
     },
     rowLabel: {
-        fontSize: 17,
+        fontSize: 20,
+        fontFamily: "Afacad",
         color: '#0c0c0c',
+        
     },
     rowIcon: {
-        width: 32,
-        height: 32,
+        width: 0,
+        height: 0,
         borderRadius: 999,
         alignItems: 'center',
         justifyContent: 'center',

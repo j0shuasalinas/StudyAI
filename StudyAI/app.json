@@ -24,6 +24,9 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "entryPoint": "./StudyAI/App.js"
+    "entryPoint": "./StudyAI/App.js",
+    "plugins": [
+      "expo-font"
+    ]
   }
 }
