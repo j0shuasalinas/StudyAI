@@ -4,6 +4,12 @@ import { StyleSheet, Text, View, Animated, Easing } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
+import * as Font from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+
+SplashScreen.preventAutoHideAsync();
+import { AppLoading } from 'expo';
+
 import LoginScreen from './components/HomeScreen';
 import SettingsScreen from './components/SettingsScreen'; 
 
@@ -16,12 +22,30 @@ export default function App() {
   const [fadeAnim] = useState(new Animated.Value(0));
   const [moveFadeAnim] = useState(new Animated.Value(0));
   const [loadingAnim] = useState(new Animated.Value(0));
+
   const [currentText, setCurrentText] = useState(IntroductionRandomText());
   const [assetsLoaded, setAssetsLoaded] = useState(false);
   const [startPosition, setStartPosition] = useState(0);
+  const [fontLoaded, setFontLoaded] = useState(false);
+
   const most_recent_used = useRef(currentText);
 
   useEffect(() => {
+    const loadFonts = async () => {
+      try {
+        await Font.loadAsync({
+          Afacad: require('./assets/fonts/AfacadFlux-Medium.ttf'),
+        });
+        setFontLoaded(true);
+      } catch (error) {
+        console.log('Error loading fonts:', error);
+      } finally {
+        SplashScreen.hideAsync();
+      }
+    };
+
+    loadFonts();
+
     const intervalId = setInterval(() => {
       const random_text = IntroductionRandomText();
       if (most_recent_used.current !== random_text) {
@@ -110,21 +134,58 @@ export default function App() {
     );
   }
 
+  if (!fontLoaded) {
+    return null;
+  }
+
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen name="Home" component={LoginScreen} />
-        <Stack.Screen name="Settings" component={SettingsScreen} />
+        <Stack.Screen name="Home" component={LoginScreen}
+          options={{ 
+            title: <Text style={{ textDecorationLine: 'underline', fontFamily: 'Afacad', fontSize: 20 }}>RETURN</Text> 
+          }}
+        />
+        <Stack.Screen name="Settings" component={SettingsScreen} 
+          options={{ 
+            title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
+          }}
+        />
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>
   );
 }
 
+/*<NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen name="Home" component={LoginScreen}
+          options={{ 
+            headerTitle: () => (
+              <Text style={{ textDecorationLine: 'underline', fontFamily: 'Afacad', fontSize: 20 }}>
+                RETURN
+              </Text>
+            ),
+            headerLeft: () => null,
+          }}
+        />
+        <Stack.Screen name="Settings" component={SettingsScreen} 
+          options={{ 
+            headerTitle: () => (
+              <Text style={{ textDecorationLine: 'underline', fontFamily: 'Afacad', fontSize: 20 }}>
+                RETURN
+              </Text>
+            ),
+          }}
+        />
+      </Stack.Navigator>
+      <StatusBar style="auto" />
+    </NavigationContainer>
+*/
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#333',
     alignItems: 'center',
     justifyContent: 'center',
   },
