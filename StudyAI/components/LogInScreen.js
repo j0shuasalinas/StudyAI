@@ -1,11 +1,24 @@
 import { View, Text, TouchableOpacity, Image, TextInput } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeftIcon } from 'react-native-heroicons/solid';
 import { useNavigation } from '@react-navigation/native';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../config/firebase';
 
 export default function LoginScreen() {
   const navigation = useNavigation();
+      const [email, setEmail] = useState('');
+      const [password, setPassword] = useState('');
+      const handleSubmit = async ()=> {
+        if(email && password){
+          try{
+            await signInWithEmailAndPassword(auth, email, password);
+          }catch(err){
+            console.log('got error: ', err.message);
+          }
+        }
+      }
   
   return (
     <View style={{ flex: 1, backgroundColor: '#A5A4FF' }}>
@@ -47,8 +60,9 @@ export default function LoginScreen() {
                 borderRadius: 25,
                 marginBottom: 15
               }}
-              value=""
               placeholder="Enter Email Address"
+              value={email}
+              onChangeText={(value) => setEmail(value)}
             />
 
             <Text style={{ color: '#4A4A4A', marginLeft: 10 }}>Password</Text>
@@ -60,16 +74,17 @@ export default function LoginScreen() {
                 borderRadius: 25,
                 marginBottom: 15
               }}
-              value=""
               placeholder="Enter Password"
               secureTextEntry
+              value={password}
+              onChangeText={(value) => setPassword(value)}
             />
 
             <TouchableOpacity style={{ alignItems: 'flex-end', marginBottom: 15 }}>
               <Text style={{ color: '#4A4A4A' }}>Forgot Password</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={{
+            <TouchableOpacity onPress={handleSubmit} style={{
               paddingVertical: 15,
               backgroundColor: '#F9D342',
               borderRadius: 25,
@@ -99,7 +114,8 @@ export default function LoginScreen() {
             justifyContent: 'center',
             marginBottom: 30
           }}>
-            <TouchableOpacity style={{
+            <TouchableOpacity 
+             style={{
               padding: 10,
               backgroundColor: '#F1F1F1',
               borderRadius: 25,

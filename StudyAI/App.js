@@ -19,9 +19,44 @@ import { LoadingMessageTime, OutAnimation } from './utils/animation';
 import SignUpScreen from './components/SignUpScreen';
 import WelcomeScreen from './components/welcomeScreen';
 
+import useAuth from './hooks/useAuth';
+
 const Stack = createStackNavigator();
 
 export default function App() {
+  const {user} = useAuth();
+  if(user){
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen name="Home" component={LoginScreen}
+          options={{ 
+            title: <Text style={{ textDecorationLine: 'underline', fontFamily: 'Afacad', fontSize: 20 }}>RETURN</Text> 
+          }}
+        />
+      </Stack.Navigator>
+      <StatusBar style="auto" />
+    </NavigationContainer>
+  }else{
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen name="Login" component={Login} 
+          options={{ 
+            title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
+          }}
+        />
+        <Stack.Screen name="SignUp" component={SignUpScreen} 
+          options={{ 
+            title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
+          }}
+        /><Stack.Screen name="Welcome" component={WelcomeScreen} 
+        options={{ 
+          title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
+        }}
+      />
+      </Stack.Navigator>
+      <StatusBar style="auto" />
+    </NavigationContainer>
+  }
   const [fadeAnim] = useState(new Animated.Value(0));
   const [moveFadeAnim] = useState(new Animated.Value(0));
   const [loadingAnim] = useState(new Animated.Value(0));

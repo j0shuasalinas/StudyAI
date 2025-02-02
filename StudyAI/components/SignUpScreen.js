@@ -1,11 +1,24 @@
 import { View, Text, TouchableOpacity, Image, TextInput, ScrollView } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeftIcon } from 'react-native-heroicons/solid';
 import { useNavigation } from '@react-navigation/native';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../config/firebase';
 
 export default function SignUpScreen() {
     const navigation = useNavigation();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const handleSubmit = async ()=> {
+      if(email && password){
+        try{
+          await createUserWithEmailAndPassword(auth, email, password);
+        }catch(err){
+          console.log('got error: ', err.message);
+        }
+      }
+    }
     return (
         <View style={{ flex: 1, backgroundColor: '#A5A4FF' }}>
             <SafeAreaView style={{ flex: 1 }}>
@@ -52,6 +65,8 @@ export default function SignUpScreen() {
                                 marginBottom: 12
                             }}
                             placeholder="Enter Email Address"
+                            value={email}
+                            onChangeText={(value) => setEmail(value)}
                         />
                         <Text style={{ color: '#4A4A4A', marginLeft: 8 }}>Password</Text>
                         <TextInput
@@ -63,9 +78,12 @@ export default function SignUpScreen() {
                                 marginBottom: 32
                             }}
                             placeholder="Enter Password"
+                            value={password}
+                            onChangeText={(value) => setPassword(value)}
                             secureTextEntry
                         />
                         <TouchableOpacity
+                            onPress={handleSubmit}
                             style={{
                                 backgroundColor: '#F4A261',
                                 paddingVertical: 16,
