@@ -140,52 +140,48 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen name="Home" component={LoginScreen}
+      <Stack.Navigator
+        initialRouteName="Home"
+        screenOptions={{
+          headerStyle: { backgroundColor: "#493dba" }, // Background color for the top bar
+          headerTintColor: "#fff", // Change text color if needed
+        }}
+      >
+        <Stack.Screen 
+          name="Home" 
+          component={LoginScreen}
           options={{ 
-            title: <Text style={{ textDecorationLine: 'underline', fontFamily: 'Afacad', fontSize: 20 }}>RETURN</Text> 
-          }}
+            title: "DASHBOARD",
+            headerTitleStyle: { fontFamily: 'Afacad', fontSize: 30},
+          }} 
         />
-        <Stack.Screen name="Settings" component={SettingsScreen} 
+        <Stack.Screen 
+          name="Settings" 
+          component={SettingsScreen} 
           options={{ 
-            title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
-          }}
+            title: "PROFILE",
+            headerTitleStyle: { fontFamily: 'Afacad', fontSize: 30 },
+          }} 
         />
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>
+
+
+
   );
 }
-
-/*<NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen name="Home" component={LoginScreen}
-          options={{ 
-            headerTitle: () => (
-              <Text style={{ textDecorationLine: 'underline', fontFamily: 'Afacad', fontSize: 20 }}>
-                RETURN
-              </Text>
-            ),
-            headerLeft: () => null,
-          }}
-        />
-        <Stack.Screen name="Settings" component={SettingsScreen} 
-          options={{ 
-            headerTitle: () => (
-              <Text style={{ textDecorationLine: 'underline', fontFamily: 'Afacad', fontSize: 20 }}>
-                RETURN
-              </Text>
-            ),
-          }}
-        />
-      </Stack.Navigator>
-      <StatusBar style="auto" />
-    </NavigationContainer>
-*/
+// #493dba
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#333',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  navigationContainer: {
+    flex: 1,
+    backgroundColor: '#493dba',
     alignItems: 'center',
     justifyContent: 'center',
   },
