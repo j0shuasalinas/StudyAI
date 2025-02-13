@@ -12,6 +12,7 @@ import { AppLoading } from 'expo';
 
 import LoginScreen from './components/HomeScreen';
 import SettingsScreen from './components/SettingsScreen'; 
+import ManageScreen from './components/ManageScreen'; 
 
 import { IntroductionRandomText, LoadingText } from './utils/texts';
 import { LoadingMessageTime, OutAnimation } from './utils/animation';
@@ -160,6 +161,14 @@ export default function App() {
           component={SettingsScreen} 
           options={{ 
             title: "PROFILE",
+            headerTitleStyle: { fontFamily: 'Afacad', fontSize: 30 },
+          }} 
+        />
+        <Stack.Screen 
+          name="Manage" 
+          component={ManageScreen} 
+          options={{ 
+            title: "MANAGE",
             headerTitleStyle: { fontFamily: 'Afacad', fontSize: 30 },
           }} 
         />
