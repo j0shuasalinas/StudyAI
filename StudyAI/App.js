@@ -8,12 +8,11 @@ import * as Font from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 
 SplashScreen.preventAutoHideAsync();
-import { AppLoading } from 'expo';
 
 import LoginScreen from './components/HomeScreen';
 import SettingsScreen from './components/SettingsScreen'; 
-import Login from './components/LogInScreen'
-
+import ManageScreen from './components/ManageScreen'; 
+import Login from './components/LogInScreen';
 import { IntroductionRandomText, LoadingText } from './utils/texts';
 import { LoadingMessageTime, OutAnimation } from './utils/animation';
 import SignUpScreen from './components/SignUpScreen';
@@ -24,39 +23,8 @@ import useAuth from './hooks/useAuth';
 const Stack = createStackNavigator();
 
 export default function App() {
-  const {user} = useAuth();
-  if(user){
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen name="Home" component={LoginScreen}
-          options={{ 
-            title: <Text style={{ textDecorationLine: 'underline', fontFamily: 'Afacad', fontSize: 20 }}>RETURN</Text> 
-          }}
-        />
-      </Stack.Navigator>
-      <StatusBar style="auto" />
-    </NavigationContainer>
-  }else{
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen name="Login" component={Login} 
-          options={{ 
-            title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
-          }}
-        />
-        <Stack.Screen name="SignUp" component={SignUpScreen} 
-          options={{ 
-            title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
-          }}
-        /><Stack.Screen name="Welcome" component={WelcomeScreen} 
-        options={{ 
-          title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
-        }}
-      />
-      </Stack.Navigator>
-      <StatusBar style="auto" />
-    </NavigationContainer>
-  }
+  const { user } = useAuth();
+
   const [fadeAnim] = useState(new Animated.Value(0));
   const [moveFadeAnim] = useState(new Animated.Value(0));
   const [loadingAnim] = useState(new Animated.Value(0));
@@ -176,37 +144,51 @@ export default function App() {
     return null;
   }
 
-  return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen name="Home" component={LoginScreen}
-          options={{ 
-            title: <Text style={{ textDecorationLine: 'underline', fontFamily: 'Afacad', fontSize: 20 }}>RETURN</Text> 
-          }}
-        />
-        <Stack.Screen name="Settings" component={SettingsScreen} 
-          options={{ 
-            title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
-          }}
-        />
-        <Stack.Screen name="Login" component={Login} 
-          options={{ 
-            title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
-          }}
-        />
-        <Stack.Screen name="SignUp" component={SignUpScreen} 
-          options={{ 
-            title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
-          }}
-        /><Stack.Screen name="Welcome" component={WelcomeScreen} 
-        options={{ 
-          title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
-        }}
-      />
-      </Stack.Navigator>
-      <StatusBar style="auto" />
-    </NavigationContainer>
-  );
+  if (user) {
+    return (
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Home">
+          <Stack.Screen 
+            name="Home" 
+            component={LoginScreen}
+            options={{ 
+              title: <Text style={{ textDecorationLine: 'underline', fontFamily: 'Afacad', fontSize: 20 }}>RETURN</Text> 
+            }} 
+          />
+        </Stack.Navigator>
+        <StatusBar style="auto" />
+      </NavigationContainer>
+    );
+  } else {
+    return (
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Login">
+          <Stack.Screen 
+            name="Login" 
+            component={Login} 
+            options={{ 
+              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
+            }} 
+          />
+          <Stack.Screen 
+            name="SignUp" 
+            component={SignUpScreen} 
+            options={{ 
+              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
+            }} 
+          />
+          <Stack.Screen 
+            name="Welcome" 
+            component={WelcomeScreen} 
+            options={{ 
+              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
+            }} 
+          />
+        </Stack.Navigator>
+        <StatusBar style="auto" />
+      </NavigationContainer>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
@@ -216,5 +198,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-
+  navigationContainer: {
+    flex: 1,
+    backgroundColor: '#493dba',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
