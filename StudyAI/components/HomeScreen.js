@@ -205,6 +205,9 @@ const LoginScreen = ({ navigation }) => {
           <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
             <Text style={styles.navItem}>PROFILE</Text>
           </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Welcome')}>
+            <Text style={styles.navItem}>W</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
