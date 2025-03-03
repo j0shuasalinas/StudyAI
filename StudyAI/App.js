@@ -9,7 +9,7 @@ import * as SplashScreen from 'expo-splash-screen';
 
 SplashScreen.preventAutoHideAsync();
 
-import LoginScreen from './components/HomeScreen';
+import MainScreen from './components/HomeScreen';
 import SettingsScreen from './components/SettingsScreen'; 
 import ManageScreen from './components/ManageScreen'; 
 import Login from './components/LogInScreen';
@@ -19,6 +19,7 @@ import SignUpScreen from './components/SignUpScreen';
 import WelcomeScreen from './components/welcomeScreen';
 
 import useAuth from './hooks/useAuth';
+import LoginScreen from './components/LogInScreen';
 
 const Stack = createStackNavigator();
 
@@ -150,22 +151,36 @@ export default function App() {
         <Stack.Navigator initialRouteName="Home">
           <Stack.Screen 
             name="Home" 
-            component={LoginScreen}
+            component={MainScreen}
             options={{ 
               title: <Text style={{ textDecorationLine: 'underline', fontFamily: 'Afacad', fontSize: 20 }}>RETURN</Text> 
             }} 
           />
-        </Stack.Navigator>
+        <Stack.Screen 
+            name="Manage" 
+            component={ManageScreen} 
+            options={{ 
+              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
+            }} 
+          />
+          <Stack.Screen 
+            name="Settings" 
+            component={SettingsScreen} 
+            options={{ 
+              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
+            }} 
+          />
+          </Stack.Navigator>
         <StatusBar style="auto" />
       </NavigationContainer>
     );
   } else {
     return (
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Login">
+        <Stack.Navigator initialRouteName="Welcome">
           <Stack.Screen 
-            name="Login" 
-            component={Login} 
+            name="Welcome" 
+            component={WelcomeScreen} 
             options={{ 
               title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
             }} 
@@ -178,8 +193,22 @@ export default function App() {
             }} 
           />
           <Stack.Screen 
-            name="Welcome" 
-            component={WelcomeScreen} 
+            name="Login" 
+            component={LoginScreen} 
+            options={{ 
+              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
+            }} 
+          />
+          <Stack.Screen 
+            name="Manage" 
+            component={ManageScreen} 
+            options={{ 
+              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
+            }} 
+          />
+          <Stack.Screen 
+            name="Settings" 
+            component={SettingsScreen} 
             options={{ 
               title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
             }} 
@@ -190,6 +219,7 @@ export default function App() {
     );
   }
 }
+
 
 const styles = StyleSheet.create({
   container: {

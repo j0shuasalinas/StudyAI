@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, Image, TouchableOpacity, FlatList, Dimensions } from 'react-native';
-
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import ManageScreen from './ManageScreen';
+import SettingsScreen from './SettingsScreen';
+import WelcomeScreen from './welcomeScreen';
 const createCalendarData = (daysAhead = 7) => {
   const data = [];
   const today = new Date();
@@ -13,6 +17,8 @@ const createCalendarData = (daysAhead = 7) => {
   return data;
 };
 
+const Stack = createStackNavigator();
+
 const data = createCalendarData(14);
 
 const getCurrentDateIndex = () => {
@@ -23,7 +29,7 @@ const getCurrentDateIndex = () => {
 
 const { width, height } = Dimensions.get('window');
 
-const LoginScreen = ({ navigation }) => {
+const HomeScreen = ({ navigation }) => {
   const flatListRef = useRef(null);
   const [currentIndex, setCurrentIndex] = useState(getCurrentDateIndex());
   const [miniBoxesData, setMiniBoxesData] = useState([]);
@@ -197,16 +203,12 @@ const LoginScreen = ({ navigation }) => {
       </View>
 
       <View style={styles.topBar}>
-
         <View style={styles.navBar}>
           <TouchableOpacity onPress={() => navigation.navigate('Manage')}>
             <Text style={styles.navItem}>MANAGE</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
             <Text style={styles.navItem}>PROFILE</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Welcome')}>
-            <Text style={styles.navItem}>W</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -426,4 +428,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default HomeScreen;
