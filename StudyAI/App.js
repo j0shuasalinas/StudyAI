@@ -153,14 +153,14 @@ export default function App() {
             name="Home" 
             component={MainScreen}
             options={{ 
-              title: <Text style={{ textDecorationLine: 'underline', fontFamily: 'Afacad', fontSize: 20 }}>RETURN</Text> 
+              title: <Text style={{ textDecorationLine: 'underline', fontFamily: 'Afacad', fontSize: 20 }}>Home</Text> 
             }} 
           />
         <Stack.Screen 
             name="Manage" 
             component={ManageScreen} 
             options={{ 
-              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
+              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Manage Assignments</Text> 
             }} 
           />
           <Stack.Screen 
@@ -182,28 +182,28 @@ export default function App() {
             name="Welcome" 
             component={WelcomeScreen} 
             options={{ 
-              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
+              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Welcome</Text> 
             }} 
           />
           <Stack.Screen 
             name="SignUp" 
             component={SignUpScreen} 
             options={{ 
-              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
+              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Sign Up</Text> 
             }} 
           />
           <Stack.Screen 
             name="Login" 
             component={LoginScreen} 
             options={{ 
-              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
+              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Login</Text> 
             }} 
           />
           <Stack.Screen 
             name="Manage" 
             component={ManageScreen} 
             options={{ 
-              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
+              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Manage</Text> 
             }} 
           />
           <Stack.Screen 
