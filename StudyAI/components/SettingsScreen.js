@@ -23,6 +23,7 @@ const SECTIONS = [
         items: [
             { id: "profile", label: "Edit Profile", type: "Link", icon: "user", color: "#E91E63" },
             { id: "security", label: "Security", type: "Link", icon: "lock", color: "#9C27B0" },
+            { id: "logout", label: "Logout", type: "Link", icon: "lock", color: "#9C27B0" },
         ]
     }
 ];
@@ -85,6 +86,7 @@ export default function SettingsScreen() {
                                     )}
                                 </View>
                             </TouchableOpacity>
+                            
                         ))}
                     </View>
                 ))}

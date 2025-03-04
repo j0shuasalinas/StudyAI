@@ -114,7 +114,7 @@ export default function LoginScreen() {
             justifyContent: 'center',
             marginBottom: 30
           }}>
-            <TouchableOpacity 
+            <TouchableOpacity
              style={{
               padding: 10,
               backgroundColor: '#F1F1F1',
