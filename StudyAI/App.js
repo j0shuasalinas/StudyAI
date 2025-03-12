@@ -152,22 +152,29 @@ export default function App() {
           <Stack.Screen 
             name="Home" 
             component={MainScreen}
-            options={{ 
-              title: <Text style={{ textDecorationLine: 'underline', fontFamily: 'Afacad', fontSize: 20 }}>Home</Text> 
-            }} 
-          />
-        <Stack.Screen 
-            name="Manage" 
-            component={ManageScreen} 
-            options={{ 
-              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Manage Assignments</Text> 
+            options={{
+              headerStyle: {backgroundColor: '#493dba',},
+              headerTintColor: '#d0c1d9',
+              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25, color: '#fff' }}>Dashboard</Text> 
             }} 
           />
           <Stack.Screen 
+            name="Manage" 
+            component={ManageScreen} 
+            options={{ 
+              headerStyle: {backgroundColor: '#493dba',},
+              headerTintColor: '#d0c1d9',
+              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25, color: '#fff' }}>Manage Assignments</Text> 
+            }} 
+          />
+          <Stack.Screen   
             name="Settings" 
             component={SettingsScreen} 
+            // initialParams={{ userdata }}
             options={{ 
-              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
+              headerStyle: {backgroundColor: '#493dba',},
+              headerTintColor: '#d0c1d9',
+              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25, color: '#fff' }}>User Profile Account</Text> 
             }} 
           />
           </Stack.Navigator>
@@ -176,12 +183,13 @@ export default function App() {
     );
   } else {
     return (
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName="Welcome">
+      <NavigationContainer style={{backgroundColor: "#5033cd"}}>
+        <Stack.Navigator initialRouteName="Welcome" >
           <Stack.Screen 
             name="Welcome" 
             component={WelcomeScreen} 
             options={{ 
+              headerStyle: {backgroundColor: '#fff',},
               title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Welcome</Text> 
             }} 
           />

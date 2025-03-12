@@ -1,10 +1,13 @@
-import { View, Text, TouchableOpacity, Image, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, Image, TextInput, Dimensions } from 'react-native';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeftIcon } from 'react-native-heroicons/solid';
 import { useNavigation } from '@react-navigation/native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../config/firebase';
+
+const { width, height } = Dimensions.get('window');
+
 
 export default function LoginScreen() {
   const navigation = useNavigation();
@@ -21,58 +24,56 @@ export default function LoginScreen() {
       }
   
   return (
-    <View style={{ flex: 1, backgroundColor: '#A5A4FF' }}>
+    <View style={{ flex: 1, backgroundColor: '#5033cd' }}>
       <SafeAreaView style={{ flex: 1 }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'flex-start', marginTop: 10 }}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={{
-              backgroundColor: '#F9D342',
-              padding: 10,
-              borderTopRightRadius: 20,
-              borderBottomLeftRadius: 20,
-              marginLeft: 20
-            }}
-          >
-            <ArrowLeftIcon size="20" color="black" />
-          </TouchableOpacity>
-        </View>
 
         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
           <Image source={require('../assets/logo.png')} style={{ width: 200, height: 200 }} />
         </View>
 
+
         <View style={{
-          flex: 1,
-          backgroundColor: 'white',
+          flex: 0,
+          backgroundColor: '#fff',
           paddingHorizontal: 20,
           paddingTop: 20,
-          borderTopLeftRadius: 50,
-          borderTopRightRadius: 50
+          borderTopLeftRadius: 0,
+          borderTopRightRadius: 0,
+          top: width/15,
+          borderWidth: 0,
+          borderColor: '#464447',
         }}>
           <View style={{ marginBottom: 20 }}>
-            <Text style={{ color: '#4A4A4A', marginLeft: 10 }}>Email Address</Text>
+            <Text style={{ fontFamily: 'Afacad', fontSize: 18, color: '#4A4A4A', marginLeft: 10 }}>Email Address</Text>
             <TextInput
               style={{
-                padding: 15,
+                padding: 8,
                 backgroundColor: '#F1F1F1',
                 color: '#4A4A4A',
                 borderRadius: 25,
-                marginBottom: 15
+                marginBottom: 5,
+                fontFamily: 'Afacad', fontSize: 18,
+                borderRadius: 8,
+                borderWidth: 1,
+                borderColor: '#e1dded',
               }}
               placeholder="Enter Email Address"
               value={email}
               onChangeText={(value) => setEmail(value)}
             />
 
-            <Text style={{ color: '#4A4A4A', marginLeft: 10 }}>Password</Text>
+            <Text style={{ fontFamily: 'Afacad', fontSize: 18, color: '#4A4A4A', marginLeft: 10 }}>Password</Text>
             <TextInput
               style={{
-                padding: 15,
+                padding: 8,
                 backgroundColor: '#F1F1F1',
                 color: '#4A4A4A',
                 borderRadius: 25,
-                marginBottom: 15
+                marginBottom: 15,
+                fontFamily: 'Afacad', fontSize: 18,
+                borderRadius: 8,
+                borderWidth: 1,
+                borderColor: '#e1dded',
               }}
               placeholder="Enter Password"
               secureTextEntry
@@ -81,20 +82,21 @@ export default function LoginScreen() {
             />
 
             <TouchableOpacity style={{ alignItems: 'flex-end', marginBottom: 15 }}>
-              <Text style={{ color: '#4A4A4A' }}>Forgot Password</Text>
+              <Text style={{ fontFamily: 'Afacad', color: '#4A4A4A' }}>Forgot Password</Text>
             </TouchableOpacity>
 
             <TouchableOpacity onPress={handleSubmit} style={{
               paddingVertical: 15,
-              backgroundColor: '#F9D342',
+              backgroundColor: '#493dba',
               borderRadius: 25,
-              marginBottom: 20
+              marginBottom: 0
             }}>
               <Text style={{
                 fontSize: 18,
                 fontWeight: 'bold',
                 textAlign: 'center',
-                color: '#4A4A4A'
+                color: '#fff',
+                fontFamily: 'Afacad', fontSize: 18,
               }}>Login</Text>
             </TouchableOpacity>
           </View>
@@ -104,7 +106,8 @@ export default function LoginScreen() {
             color: '#4A4A4A',
             fontWeight: 'bold',
             textAlign: 'center',
-            paddingVertical: 15
+            paddingVertical: 15,
+            fontFamily: 'Afacad', fontSize: 18,
           }}>
             Or
           </Text>
@@ -144,11 +147,12 @@ export default function LoginScreen() {
           </View>
 
           <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 10 }}>
-            <Text style={{ color: 'gray', fontWeight: '500' }}>Don't have an account?</Text>
+            <Text style={{ fontFamily: 'Afacad', color: 'gray', fontWeight: '500' }}>Don't have an account?</Text>
             <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-              <Text style={{ fontWeight: '700', color: '#F6A800' }}> Sign Up</Text>
+              <Text style={{ fontFamily: 'Afacad', fontWeight: '700', color: '#493dba' }}> Sign Up</Text>
             </TouchableOpacity>
           </View>
+          <Text style={{ fontFamily: 'Afacad', fontWeight: '700', color: '#F6A800', marginTop: 20 }}></Text>
         </View>
       </SafeAreaView>
     </View>

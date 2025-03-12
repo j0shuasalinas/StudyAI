@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     width: width,
-    backgroundColor: "#4d4a5e",
+    backgroundColor: "#f2f2f2",
     position: 'absolute',
     top: 0,
     paddingVertical: 30, 
@@ -365,7 +365,7 @@ const styles = StyleSheet.create({
   },
   currentDayBox: {
     borderWidth: 0,
-    backgroundColor: '#aa9fe0',
+    backgroundColor: '#493dba',
     borderColor: '#1d03a3',
   },
   text: {
@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     fontSize: 30,
     textAlign: 'center',
-    color: '#333',
+    color: '#fff',
   },
   miniBoxesContainer: {
     flexDirection: 'row',

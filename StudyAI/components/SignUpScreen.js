@@ -20,49 +20,44 @@ export default function SignUpScreen() {
       }
     }
     return (
-        <View style={{ flex: 1, backgroundColor: '#A5A4FF' }}>
+        <View style={{ flex: 1, backgroundColor: '#5033cd' }}>
             <SafeAreaView style={{ flex: 1 }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
-                    <TouchableOpacity
-                        onPress={() => navigation.goBack()}
-                        style={{
-                            backgroundColor: '#F4A261',
-                            padding: 10,
-                            borderTopRightRadius: 20,
-                            borderBottomLeftRadius: 20,
-                            marginLeft: 16
-                        }}>
-                        <ArrowLeftIcon size="20" color="black" />
-                    </TouchableOpacity>
-                </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                    <Image source={require('../assets/logo.png')} style={{ width: 165, height: 110 }} />
+                    <Image source={require('../assets/logo.png')} style={{ width: 200, height: 200 }} />
                 </View>
             </SafeAreaView>
             
             {/* This ScrollView ensures that content doesn't get cut off on smaller screens */}
             <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-end' }}>
-                <View style={{ backgroundColor: 'white', paddingHorizontal: 32, paddingTop: 32, borderTopLeftRadius: 50, borderTopRightRadius: 50 }}>
+                <View style={{ backgroundColor: 'white', paddingHorizontal: 32, paddingTop: 32, borderTopLeftRadius: 0, borderTopRightRadius: 0 }}>
                     <View style={{ marginBottom: 16 }}>
                         <Text style={{ color: '#4A4A4A', marginLeft: 8 }}>Full Name</Text>
                         <TextInput
                             style={{
-                                padding: 16,
+                                padding: 8,
                                 backgroundColor: '#F1F1F1',
                                 color: '#4A4A4A',
-                                borderRadius: 30,
-                                marginBottom: 12
+                                borderRadius: 25,
+                                marginBottom: 5,
+                                fontFamily: 'Afacad', fontSize: 18,
+                                borderRadius: 8,
+                                borderWidth: 1,
+                                borderColor: '#e1dded',
                             }}
                             placeholder="Enter Full Name"
                         />
                         <Text style={{ color: '#4A4A4A', marginLeft: 8 }}>Email Address</Text>
                         <TextInput
                             style={{
-                                padding: 16,
+                                padding: 8,
                                 backgroundColor: '#F1F1F1',
                                 color: '#4A4A4A',
-                                borderRadius: 30,
-                                marginBottom: 12
+                                borderRadius: 25,
+                                marginBottom: 5,
+                                fontFamily: 'Afacad', fontSize: 18,
+                                borderRadius: 8,
+                                borderWidth: 1,
+                                borderColor: '#e1dded',
                             }}
                             placeholder="Enter Email Address"
                             value={email}
@@ -71,11 +66,15 @@ export default function SignUpScreen() {
                         <Text style={{ color: '#4A4A4A', marginLeft: 8 }}>Password</Text>
                         <TextInput
                             style={{
-                                padding: 16,
+                                padding: 8,
                                 backgroundColor: '#F1F1F1',
                                 color: '#4A4A4A',
-                                borderRadius: 30,
-                                marginBottom: 32
+                                borderRadius: 25,
+                                marginBottom: 5,
+                                fontFamily: 'Afacad', fontSize: 18,
+                                borderRadius: 8,
+                                borderWidth: 1,
+                                borderColor: '#e1dded',
                             }}
                             placeholder="Enter Password"
                             value={password}
@@ -85,33 +84,55 @@ export default function SignUpScreen() {
                         <TouchableOpacity
                             onPress={handleSubmit}
                             style={{
-                                backgroundColor: '#F4A261',
-                                paddingVertical: 16,
-                                borderRadius: 30
+                                paddingVertical: 15,
+                                backgroundColor: '#493dba',
+                                borderRadius: 25,
+                                marginBottom: 0
                             }}>
-                            <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'white', textAlign: 'center' }}>Sign Up</Text>
+                            <Text style={{ 
+                                fontSize: 18,
+                                fontWeight: 'bold',
+                                textAlign: 'center',
+                                color: '#fff',
+                                fontFamily: 'Afacad', fontSize: 18, 
+                            }}>Sign Up</Text>
                         </TouchableOpacity>
                     </View>
-                    <Text style={{ fontSize: 18, color: '#4A4A4A', fontWeight: 'bold', textAlign: 'center', paddingVertical: 16 }}>
+                    <Text style={{ fontSize: 18,
+            color: '#4A4A4A',
+            fontWeight: 'bold',
+            textAlign: 'center',
+            paddingVertical: 15,
+            fontFamily: 'Afacad', fontSize: 18, }}>
                         Or
                     </Text>
                     <View style={{ flexDirection: 'row', justifyContent: 'center', space: 16 }}>
-                        <TouchableOpacity style={{ padding: 12, backgroundColor: '#F1F1F1', borderRadius: 30 }}>
+                        <TouchableOpacity style={{ padding: 10,
+                            backgroundColor: '#F1F1F1',
+                            borderRadius: 25,
+                            marginHorizontal: 10 }}>
                             <Image source={require('../assets/icons/google.png')} style={{ width: 40, height: 40 }} />
                         </TouchableOpacity>
-                        <TouchableOpacity style={{ padding: 12, backgroundColor: '#F1F1F1', borderRadius: 30 }}>
+                        <TouchableOpacity style={{ padding: 10,
+                            backgroundColor: '#F1F1F1',
+                            borderRadius: 25,
+                            marginHorizontal: 10 }}>
                             <Image source={require('../assets/icons/apple.png')} style={{ width: 40, height: 40 }} />
                         </TouchableOpacity>
-                        <TouchableOpacity style={{ padding: 12, backgroundColor: '#F1F1F1', borderRadius: 30 }}>
+                        <TouchableOpacity style={{ padding: 10,
+                            backgroundColor: '#F1F1F1',
+                            borderRadius: 25,
+                            marginHorizontal: 10 }}>
                             <Image source={require('../assets/icons/facebook.png')} style={{ width: 40, height: 40 }} />
                         </TouchableOpacity>
                     </View>
                     <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 10, marginBottom: 20 }}>
-                        <Text style={{ color: 'gray', fontWeight: '500' }}>Already have an account?</Text>
+                        <Text style={{ fontFamily: 'Afacad', color: 'gray', fontWeight: '500' }}>Already have an account?</Text>
                         <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                            <Text style={{ fontWeight: '700', color: '#F6A800' }}> Login</Text>
+                            <Text style={{ fontFamily: 'Afacad', fontWeight: '700', color: '#493dba' }}> Login</Text>
                         </TouchableOpacity>
                     </View>
+                    <Text style={{ fontFamily: 'Afacad', fontWeight: '700', color: '#F6A800', marginTop: 20 }}></Text>
                 </View>
             </ScrollView>
         </View>

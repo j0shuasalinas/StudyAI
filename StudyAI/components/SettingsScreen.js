@@ -7,6 +7,11 @@ import { Switch } from 'react-native-gesture-handler';
 import * as Font from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 
+import { useNavigation } from '@react-navigation/native';
+
+import useAuth from '../hooks/useAuth';
+import { getAuth, signOut } from 'firebase/auth';
+
 SplashScreen.preventAutoHideAsync();
 
 const SECTIONS = [
@@ -36,7 +41,29 @@ export default function SettingsScreen() {
         showCollaborators: true,
     });
 
+    const navigation = useNavigation();
+
+    const auth = getAuth();
+    const user = auth.currentUser;
+    const email = user.email;
+    const name = user.displayName;
+
     const isDarkMode = form.darkMode;
+
+    function buttonPress(id, check){
+        if (id=='logout'){
+            // 
+            if (isNaN(check)) {
+                signOut(auth).then(() => {
+                    buttonPress(id, true);
+                }).catch((error) => {
+                    throw(error);
+                });
+            } else {
+                navigation.popToTop('Welcome');
+            }
+        }
+    }
 
     return (
         <SafeAreaView style={[styles.container, isDarkMode && styles.darkContainer]}>
@@ -51,9 +78,9 @@ export default function SettingsScreen() {
                         </View>
                     </TouchableOpacity>
 
-                    <Text style={[styles.profileName, isDarkMode && styles.darkText]}>John Doe</Text>
+                    <Text style={[styles.profileName, isDarkMode && styles.darkText]}>{name}</Text>
                     <Text style={[styles.profileAddress, isDarkMode && styles.darkSubText]}>
-                        @username or example@gmail.com ??? which one
+                        {email}
                     </Text>
                     
                 </View>
@@ -63,7 +90,7 @@ export default function SettingsScreen() {
                         <Text style={[styles.sectionHeader, isDarkMode && styles.darkSubText]}>{header}</Text>
 
                         {items.map(({ id, label, type, icon, color }) => (
-                            <TouchableOpacity key={icon} onPress={() => {}}>
+                            <TouchableOpacity key={icon} onPress={() => buttonPress(id)}>
                                 <View style={[styles.row, isDarkMode && styles.darkRow]}>
                                     <View style={[styles.rowIcon, { backgroundColor: color }]}>
                                         <FeatherIcon name={icon} color="#fff" size={18} />
