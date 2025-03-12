@@ -155,6 +155,12 @@ export default function App() {
             options={{
               headerStyle: {backgroundColor: '#493dba',},
               headerTintColor: '#d0c1d9',
+              headerBackTitleStyle: {
+                fontFamily: 'Afacad',
+                fontSize: 20,
+                color: '#fff',
+              },
+              headerBackTitle: 'Back',
               title: <Text style={{ fontFamily: 'Afacad', fontSize: 25, color: '#fff' }}>Dashboard</Text> 
             }} 
           />
@@ -164,7 +170,13 @@ export default function App() {
             options={{ 
               headerStyle: {backgroundColor: '#493dba',},
               headerTintColor: '#d0c1d9',
-              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25, color: '#fff' }}>Manage Assignments</Text> 
+              headerBackTitleStyle: {
+                fontFamily: 'Afacad',
+                fontSize: 20,
+                color: '#fff',
+              },
+              headerBackTitle: 'Back',
+              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25, color: '#fff' }}>Manage</Text> 
             }} 
           />
           <Stack.Screen   
@@ -174,7 +186,13 @@ export default function App() {
             options={{ 
               headerStyle: {backgroundColor: '#493dba',},
               headerTintColor: '#d0c1d9',
-              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25, color: '#fff' }}>User Profile Account</Text> 
+              headerBackTitleStyle: {
+                fontFamily: 'Afacad',
+                fontSize: 20,
+                color: '#fff',
+              },
+              headerBackTitle: 'Back',
+              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25, color: '#fff' }}>Profile</Text> 
             }} 
           />
           </Stack.Navigator>
@@ -205,20 +223,6 @@ export default function App() {
             component={LoginScreen} 
             options={{ 
               title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Login</Text> 
-            }} 
-          />
-          <Stack.Screen 
-            name="Manage" 
-            component={ManageScreen} 
-            options={{ 
-              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Manage</Text> 
-            }} 
-          />
-          <Stack.Screen 
-            name="Settings" 
-            component={SettingsScreen} 
-            options={{ 
-              title: <Text style={{ fontFamily: 'Afacad', fontSize: 25 }}>Settings</Text> 
             }} 
           />
         </Stack.Navigator>

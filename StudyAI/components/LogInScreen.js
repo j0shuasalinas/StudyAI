@@ -33,13 +33,13 @@ export default function LoginScreen() {
 
 
         <View style={{
-          flex: 0,
+          flex: 1,
           backgroundColor: '#fff',
           paddingHorizontal: 20,
           paddingTop: 20,
           borderTopLeftRadius: 0,
           borderTopRightRadius: 0,
-          top: width/15,
+          top: height/20,
           borderWidth: 0,
           borderColor: '#464447',
         }}>
@@ -146,13 +146,13 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
 
-          <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 10 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: -18 }}>
             <Text style={{ fontFamily: 'Afacad', color: 'gray', fontWeight: '500' }}>Don't have an account?</Text>
             <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
               <Text style={{ fontFamily: 'Afacad', fontWeight: '700', color: '#493dba' }}> Sign Up</Text>
             </TouchableOpacity>
           </View>
-          <Text style={{ fontFamily: 'Afacad', fontWeight: '700', color: '#F6A800', marginTop: 20 }}></Text>
+          <Text style={{ fontFamily: 'Afacad', fontWeight: '700', color: '#F6A800', marginTop: 100 }}></Text>
         </View>
       </SafeAreaView>
     </View>
