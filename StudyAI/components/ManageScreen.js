@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Dimensions, Modal, FlatList, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, TextInput, Image, useColorScheme } from 'react-native';
 import { CheckBox } from '@react-native-community/checkbox';
+import axios from 'axios';
 
 
 import profilePicture from '../assets/basic_pfp.jpg';
@@ -42,6 +43,20 @@ export default function ManageScreen() {
     const [modalVisible, setModalVisible] = useState(false);
     const [currentAssignment, setCurrentAssignment] = useState(null);
 
+    useEffect(() => {
+        fetchAssignments();
+      }, []);
+    
+      const fetchAssignments = async () => {
+        try {
+          const response = await axios.get('http://localhost:5001/assignments');
+          setAssignments(response.data);
+        } catch (error) {
+          console.error('Error fetching assignments:', error);
+        }
+      };
+    
+
     const editAssignment = (ID) => {
         const assignmentToEdit = sections[1].items.find(item => item.ID === ID);
         if (assignmentToEdit) {
@@ -65,14 +80,27 @@ export default function ManageScreen() {
         color: "#4A90E2"
     }
     
-    const createAssignment = () => {
+    const createAssignment = async () => {
         const newAssignment = { ...itemTemplate, ID: sections[1].items.length + 1 };
-        setCurrentAssignment(newAssignment);
-        setModalVisible(true);
+
+        try {
+            const response = await axios.post('http://localhost:5001/addAssignment', newAssignment);
+            console.log('Assignment added:', response.data);
+
+            // Refresh the assignments list
+            fetchAssignments();
+
+            setModalVisible(false);
+        } catch (error) {
+            console.error('Error adding assignment:', error);
+            alert('Failed to add assignment');
+        }
     };
     
-    const handleSaveAssignment = () => {
-        if (currentAssignment.Title &&
+    
+    const handleSaveAssignment = async () => {
+        if (
+            currentAssignment.Title &&
             currentAssignment.Class &&
             currentAssignment.DueDate &&
             currentAssignment.TimeDue &&
@@ -83,9 +111,9 @@ export default function ManageScreen() {
             (typeof currentAssignment.Exam === 'boolean') &&
             (typeof currentAssignment.Optional === 'boolean')
         ) {
-            const datePattern = /^\d{4}-\d{1,2}-\d{1,2}$/; // regex
+            const datePattern = /^\d{4}-\d{1,2}-\d{1,2}$/;
             const timePattern = /^\d{1,2}:\d{2}$/;
-        
+
             if (!datePattern.test(currentAssignment.DueDate)) {
                 alert("Invalid Date format. Use YYYY-M-D (e.g., 2025-2-20).");
                 return;
@@ -97,72 +125,66 @@ export default function ManageScreen() {
             }
 
             const estimatedTime = Number(currentAssignment.EstimatedTime);
-
             if (isNaN(estimatedTime)) {
                 alert("Estimated time must be a valid number.");
                 return;
             }
 
             const priority = Number(currentAssignment.Priority);
-
-            if (isNaN(priority)) {
-                alert("Priority must be a valid number.");
-                return;
-            } else if (priority < 1 || priority > 5) {
-                alert("Priority must be a valid number 1 to 5.");
+            if (isNaN(priority) || priority < 1 || priority > 5) {
+                alert("Priority must be a valid number between 1 and 5.");
                 return;
             }
 
-
             const [hour, minute] = currentAssignment.TimeDue.split(":").map(Number);
-            if (hour > 23) {
+            if (hour > 23 || minute > 59) {
                 alert("Impossible Time. Please use military time format (e.g., 23:29).");
                 return;
             }
-        
+
             const [year, month, day] = currentAssignment.DueDate.split("-").map(Number);
             const dueDate = new Date(year, month - 1, day);
-        
             if (
-                isNaN(dueDate.getTime()) || 
-                dueDate.getFullYear() !== year || 
-                dueDate.getMonth() + 1 !== month || 
+                isNaN(dueDate.getTime()) ||
+                dueDate.getFullYear() !== year ||
+                dueDate.getMonth() + 1 !== month ||
                 dueDate.getDate() !== day
             ) {
                 alert("Invalid Date. Date must not be impossible.");
                 return;
             }
-        
+
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-        
-            const threeDaysAgo = new Date();
+            const threeDaysAgo = new Date(today);
             threeDaysAgo.setDate(today.getDate() - 4);
-        
+
             if (dueDate >= threeDaysAgo) {
-                setSections(prevSections => {
-                    const updatedSections = [...prevSections];
-        
-                    const existingIndex = updatedSections[1].items.findIndex(item => item.ID === currentAssignment.ID);
-        
-                    if (existingIndex !== -1) {
-                        updatedSections[1].items[existingIndex] = { ...currentAssignment };
-                    } else {
-                        updatedSections[1].items = [...updatedSections[1].items, currentAssignment];
-                    }
-        
-                    return updatedSections;
-                });
-        
-                setModalVisible(false);
+                try {
+                    const response = await axios.put(`http://localhost:5001/updateAssignment/${currentAssignment.ID}`, currentAssignment, {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    console.log('Response:', response.data);
+
+                    // Refresh the assignments list
+                    fetchAssignments();
+
+                    setModalVisible(false);
+                } catch (error) {
+                    console.error('Error updating assignment:', error);
+                    alert('Failed to update assignment');
+                }
             } else {
                 alert("Date cannot be more than 3 days before today.");
             }
         } else {
             alert("Please fill out all fields to create a new assignment.");
-        }        
+        }
     };
-    
+
     useEffect(() => {
         if (modalVisible && !currentAssignment) {
             const newAssignment = { ...itemTemplate, ID: sections[1].items.length + 1 };

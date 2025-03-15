@@ -1,23 +1,27 @@
 const express = require('express');
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const cors = require('cors');
 
-// MongoDB connection string and client setup
 const uri = "mongodb+srv://joshuasalinas:hqkYZg3LNJXjR9L0@planit.xi7av.mongodb.net/?retryWrites=true&w=majority&appName=PlanIT";
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
-  }
+  },
+  tls: true,
+  tlsAllowInvalidCertificates: false,
 });
 
 const app = express();
-const port = 5000;
+const port = 5001;
 
-// Middleware to parse JSON data
+// Enable CORS for all origins or specify a domain
+app.use(cors());
+
+// Parse JSON request bodies
 app.use(express.json());
 
-// Template for assignments
 const itemTemplate = {
   ID: 0,
   Title: 'Assignment',
@@ -33,17 +37,18 @@ const itemTemplate = {
   color: "#4A90E2"
 };
 
-// Connect to MongoDB
 async function connectToMongoDB() {
   try {
     await client.connect();
     console.log("Connected to MongoDB successfully!");
+    const databases = await client.db().admin().listDatabases();
+    console.log("Databases:", databases);
   } catch (err) {
     console.error("MongoDB connection error:", err);
+    process.exit(1);
   }
 }
 
-// Route to fetch all assignments from MongoDB
 app.get('/assignments', async (req, res) => {
   try {
     const database = client.db("PlanIT");
@@ -51,11 +56,11 @@ app.get('/assignments', async (req, res) => {
     const assignments = await assignmentsCollection.find({}).toArray();
     res.json(assignments);
   } catch (err) {
+    console.error("Error fetching assignments:", err);
     res.status(500).send("Error fetching assignments");
   }
 });
 
-// Route to add a new assignment
 app.post('/addAssignment', async (req, res) => {
   const assignment = { ...itemTemplate, ...req.body };
 
@@ -63,7 +68,6 @@ app.post('/addAssignment', async (req, res) => {
     const database = client.db("PlanIT");
     const assignmentsCollection = database.collection("assignments");
 
-    // Insert the new assignment
     const result = await assignmentsCollection.insertOne(assignment);
     res.status(201).send(`Assignment added with ID: ${result.insertedId}`);
   } catch (err) {
@@ -72,7 +76,6 @@ app.post('/addAssignment', async (req, res) => {
   }
 });
 
-// Route to update an assignment by ID
 app.put('/updateAssignment/:id', async (req, res) => {
   const { id } = req.params;
   const updateData = req.body;
@@ -81,9 +84,8 @@ app.put('/updateAssignment/:id', async (req, res) => {
     const database = client.db("PlanIT");
     const assignmentsCollection = database.collection("assignments");
 
-    // Update the assignment by ID
     const result = await assignmentsCollection.updateOne(
-      { ID: parseInt(id) },  // Assuming IDs are integers
+      { ID: parseInt(id) },
       { $set: updateData }
     );
 
@@ -98,8 +100,19 @@ app.put('/updateAssignment/:id', async (req, res) => {
   }
 });
 
-// Start the server
-app.listen(port, () => {
+process.on('SIGINT', async () => {
+  try {
+    console.log("Shutting down server...");
+    await client.close();
+    console.log("MongoDB connection closed.");
+    process.exit(0);
+  } catch (err) {
+    console.error("Error during shutdown:", err);
+    process.exit(1);
+  }
+});
+
+app.listen(port, async () => {
   console.log(`Server is running on port ${port}`);
-  connectToMongoDB();
+  await connectToMongoDB();
 });
