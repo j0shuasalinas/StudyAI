@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Dimensions, Modal, FlatList, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, TextInput, Image, useColorScheme } from 'react-native';
 import { CheckBox } from '@react-native-community/checkbox';
-import axios from 'axios';
 
 
 import profilePicture from '../assets/basic_pfp.jpg';
@@ -10,6 +9,11 @@ import { Switch } from 'react-native-gesture-handler';
 
 import * as Font from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
+
+import { auth, db } from '../config/firebase'; // Import auth and db from firebase.js
+import { collection, getDocs } from 'firebase/firestore'; // Modular Firestore functions
+import { firestore } from '../config/firebase'; // Make sure you're importing firestore
+import { addAssignment, getAssignments } from '../config/firebase'; // Adjust the path as needed
 
 SplashScreen.preventAutoHideAsync();
 
@@ -43,20 +47,6 @@ export default function ManageScreen() {
     const [modalVisible, setModalVisible] = useState(false);
     const [currentAssignment, setCurrentAssignment] = useState(null);
 
-    useEffect(() => {
-        fetchAssignments();
-      }, []);
-    
-      const fetchAssignments = async () => {
-        try {
-          const response = await axios.get('http://localhost:5001/assignments');
-          setAssignments(response.data);
-        } catch (error) {
-          console.error('Error fetching assignments:', error);
-        }
-      };
-    
-
     const editAssignment = (ID) => {
         const assignmentToEdit = sections[1].items.find(item => item.ID === ID);
         if (assignmentToEdit) {
@@ -79,103 +69,102 @@ export default function ManageScreen() {
         Optional:false,
         color: "#4A90E2"
     }
+
     
-    const createAssignment = async () => {
+    
+    const createAssignment = () => {
         const newAssignment = { ...itemTemplate, ID: sections[1].items.length + 1 };
-
-        try {
-            const response = await axios.post('http://localhost:5001/addAssignment', newAssignment);
-            console.log('Assignment added:', response.data);
-
-            // Refresh the assignments list
-            fetchAssignments();
-
-            setModalVisible(false);
-        } catch (error) {
-            console.error('Error adding assignment:', error);
-            alert('Failed to add assignment');
-        }
+        setCurrentAssignment(newAssignment);
+        setModalVisible(true);
     };
     
-    
     const handleSaveAssignment = async () => {
-        if (
-            currentAssignment.Title &&
+        if (currentAssignment.Title &&
             currentAssignment.Class &&
             currentAssignment.DueDate &&
             currentAssignment.TimeDue &&
             currentAssignment.Priority &&
+            currentAssignment.ID &&
             (typeof currentAssignment.PrioritizeLate === 'boolean') &&
             (typeof currentAssignment.Completed === 'boolean') &&
             currentAssignment.EstimatedTime &&
             (typeof currentAssignment.Exam === 'boolean') &&
             (typeof currentAssignment.Optional === 'boolean')
         ) {
-            const datePattern = /^\d{4}-\d{1,2}-\d{1,2}$/;
+            const datePattern = /^\d{4}-\d{1,2}-\d{1,2}$/; // regex
             const timePattern = /^\d{1,2}:\d{2}$/;
-
+    
             if (!datePattern.test(currentAssignment.DueDate)) {
                 alert("Invalid Date format. Use YYYY-M-D (e.g., 2025-2-20).");
                 return;
             }
-
+    
             if (!timePattern.test(currentAssignment.TimeDue)) {
                 alert("Invalid Time format. Use H:MM (e.g., 23:58).");
                 return;
             }
-
+    
             const estimatedTime = Number(currentAssignment.EstimatedTime);
+    
             if (isNaN(estimatedTime)) {
                 alert("Estimated time must be a valid number.");
                 return;
             }
-
+    
             const priority = Number(currentAssignment.Priority);
-            if (isNaN(priority) || priority < 1 || priority > 5) {
-                alert("Priority must be a valid number between 1 and 5.");
+    
+            if (isNaN(priority)) {
+                alert("Priority must be a valid number.");
+                return;
+            } else if (priority < 1 || priority > 5) {
+                alert("Priority must be a valid number 1 to 5.");
                 return;
             }
-
+    
             const [hour, minute] = currentAssignment.TimeDue.split(":").map(Number);
-            if (hour > 23 || minute > 59) {
+            if (hour > 23) {
                 alert("Impossible Time. Please use military time format (e.g., 23:29).");
                 return;
             }
-
+    
             const [year, month, day] = currentAssignment.DueDate.split("-").map(Number);
             const dueDate = new Date(year, month - 1, day);
+    
             if (
-                isNaN(dueDate.getTime()) ||
-                dueDate.getFullYear() !== year ||
-                dueDate.getMonth() + 1 !== month ||
+                isNaN(dueDate.getTime()) || 
+                dueDate.getFullYear() !== year || 
+                dueDate.getMonth() + 1 !== month || 
                 dueDate.getDate() !== day
             ) {
                 alert("Invalid Date. Date must not be impossible.");
                 return;
             }
-
+    
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            const threeDaysAgo = new Date(today);
+    
+            const threeDaysAgo = new Date();
             threeDaysAgo.setDate(today.getDate() - 4);
-
+    
             if (dueDate >= threeDaysAgo) {
                 try {
-                    const response = await axios.put(`http://localhost:5001/updateAssignment/${currentAssignment.ID}`, currentAssignment, {
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
+                    // Save the assignment to Firebase
+                    await addAssignment(currentAssignment);
+    
+                    // Optionally, fetch updated assignments from Firebase after saving
+                    const updatedAssignments = await getAssignments();
+    
+                    // Update the sections state with the new assignments from Firebase
+                    setSections(prevSections => {
+                        const updatedSections = [...prevSections];
+                        updatedSections[1].items = updatedAssignments;  // Replace the existing items with the updated data
+                        return updatedSections;
                     });
-
-                    console.log('Response:', response.data);
-
-                    // Refresh the assignments list
-                    fetchAssignments();
-
-                    setModalVisible(false);
+    
+                    setModalVisible(false); // Close the modal after saving the assignment
                 } catch (error) {
-                    console.error('Error updating assignment:', error);
-                    alert('Failed to update assignment');
+                    console.error("Error saving assignment:", error);
+                    alert("There was an error saving the assignment.");
                 }
             } else {
                 alert("Date cannot be more than 3 days before today.");
@@ -184,13 +173,86 @@ export default function ManageScreen() {
             alert("Please fill out all fields to create a new assignment.");
         }
     };
-
+    
     useEffect(() => {
         if (modalVisible && !currentAssignment) {
             const newAssignment = { ...itemTemplate, ID: sections[1].items.length + 1 };
             setCurrentAssignment(newAssignment);
         }
     }, [modalVisible, currentAssignment, sections]);
+
+    useEffect(() => {
+        const fetchAssignments = async () => {
+            try {
+                const userId = auth.currentUser?.uid;  // Fetch the UID from Firebase auth
+                if (!userId) {
+                    console.error('User is not authenticated!');
+                    return;
+                }
+    
+                const assignmentsRef = collection(db, 'users', userId, 'assignments');
+                const snapshot = await getDocs(assignmentsRef);
+    
+                snapshot.docs.forEach(doc => {
+                    console.log("Raw Doc:", doc.data());
+                });
+    
+                const fetchedAssignments = snapshot.docs
+                    .map(doc => {
+                        const data = doc.data();
+                        
+                        // Debugging the data before returning
+                        console.log("Document Data:", data);
+    
+                        // Check if data is valid and contains necessary fields
+                        if (!data || !data.ID || !data.Title) {
+                            console.warn(`Missing required fields in docId: ${doc.id}`, data);
+                            return null; // return null if data is incomplete
+                        }
+    
+                        return {
+                            ID: data.ID ?? doc.id,  // Fallback to doc.id if ID is missing
+                            Title: data.Title ?? 'No Title',
+                            Class: data.Class ?? 'No Class',
+                            Completed: data.Completed ?? false,
+                            DueDate: data.DueDate ? data.DueDate.toDate() : null,
+                            EstimatedTime: data.EstimatedTime ?? 'N/A',
+                            Exam: data.Exam ?? false,
+                            Optional: data.Optional ?? false,
+                            PrioritizeLate: data.PrioritizeLate ?? false,
+                            Priority: data.Priority ?? 'Low',
+                            TimeDue: data.TimeDue ?? '00:00',
+                            color: data.color ?? '#000000',
+                        };
+                    })
+                    .filter(assignment => assignment !== null);  // Ensure we're not including null values
+    
+                console.log('Fetched Assignments:', fetchedAssignments);
+    
+                // Update sections only if fetchedAssignments is valid
+                setSections(prevSections => {
+                    console.log('Prev Sections before update:', prevSections);
+    
+                    // Spread the previous state and update only the "Manage Existing" section
+                    const updatedSections = [...prevSections];
+                    updatedSections[1] = {
+                        ...updatedSections[1],
+                        items: fetchedAssignments,
+                    };
+    
+                    console.log('Updated Sections:', updatedSections);
+    
+                    return updatedSections;
+                });
+    
+            } catch (error) {
+                console.error('Error fetching assignments:', error);
+            }
+        };
+    
+        fetchAssignments();
+    }, []);  // Only run once when the component is mounted
+    
     
 
     const searchStyle = {
