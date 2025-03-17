@@ -43,7 +43,8 @@ export default function ManageScreen() {
     const isDarkMode = form.darkMode;
 
     const [sections, setSections] = useState(SECTIONS);
-
+    const [searchText, setSearchText] = useState('');
+    const [assignments, setAssignments] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [currentAssignment, setCurrentAssignment] = useState(null);
 
@@ -56,7 +57,7 @@ export default function ManageScreen() {
     };
 
     const itemTemplate = {
-        ID: 0,
+        ID: "",
         Title:'Assignment',
         Class:'',
         Priority:1,
@@ -73,7 +74,7 @@ export default function ManageScreen() {
     
     
     const createAssignment = () => {
-        const newAssignment = { ...itemTemplate, ID: sections[1].items.length + 1 };
+        const newAssignment = { ...itemTemplate, ID: (sections[1].items.length + 1).toString() };
         setCurrentAssignment(newAssignment);
         setModalVisible(true);
     };
@@ -84,7 +85,6 @@ export default function ManageScreen() {
             currentAssignment.DueDate &&
             currentAssignment.TimeDue &&
             currentAssignment.Priority &&
-            currentAssignment.ID &&
             (typeof currentAssignment.PrioritizeLate === 'boolean') &&
             (typeof currentAssignment.Completed === 'boolean') &&
             currentAssignment.EstimatedTime &&
@@ -181,77 +181,7 @@ export default function ManageScreen() {
         }
     }, [modalVisible, currentAssignment, sections]);
 
-    useEffect(() => {
-        const fetchAssignments = async () => {
-            try {
-                const userId = auth.currentUser?.uid;  // Fetch the UID from Firebase auth
-                if (!userId) {
-                    console.error('User is not authenticated!');
-                    return;
-                }
     
-                const assignmentsRef = collection(db, 'users', userId, 'assignments');
-                const snapshot = await getDocs(assignmentsRef);
-    
-                snapshot.docs.forEach(doc => {
-                    console.log("Raw Doc:", doc.data());
-                });
-    
-                const fetchedAssignments = snapshot.docs
-                    .map(doc => {
-                        const data = doc.data();
-                        
-                        // Debugging the data before returning
-                        console.log("Document Data:", data);
-    
-                        // Check if data is valid and contains necessary fields
-                        if (!data || !data.ID || !data.Title) {
-                            console.warn(`Missing required fields in docId: ${doc.id}`, data);
-                            return null; // return null if data is incomplete
-                        }
-    
-                        return {
-                            ID: data.ID ?? doc.id,  // Fallback to doc.id if ID is missing
-                            Title: data.Title ?? 'No Title',
-                            Class: data.Class ?? 'No Class',
-                            Completed: data.Completed ?? false,
-                            DueDate: data.DueDate ? data.DueDate.toDate() : null,
-                            EstimatedTime: data.EstimatedTime ?? 'N/A',
-                            Exam: data.Exam ?? false,
-                            Optional: data.Optional ?? false,
-                            PrioritizeLate: data.PrioritizeLate ?? false,
-                            Priority: data.Priority ?? 'Low',
-                            TimeDue: data.TimeDue ?? '00:00',
-                            color: data.color ?? '#000000',
-                        };
-                    })
-                    .filter(assignment => assignment !== null);  // Ensure we're not including null values
-    
-                console.log('Fetched Assignments:', fetchedAssignments);
-    
-                // Update sections only if fetchedAssignments is valid
-                setSections(prevSections => {
-                    console.log('Prev Sections before update:', prevSections);
-    
-                    // Spread the previous state and update only the "Manage Existing" section
-                    const updatedSections = [...prevSections];
-                    updatedSections[1] = {
-                        ...updatedSections[1],
-                        items: fetchedAssignments,
-                    };
-    
-                    console.log('Updated Sections:', updatedSections);
-    
-                    return updatedSections;
-                });
-    
-            } catch (error) {
-                console.error('Error fetching assignments:', error);
-            }
-        };
-    
-        fetchAssignments();
-    }, []);  // Only run once when the component is mounted
     
     
 
@@ -279,7 +209,7 @@ export default function ManageScreen() {
                         Manage assignments here.
                     </Text>
                 </View>
-
+    
                 {sections.map(({ header, items }) => (
                     <View style={styles.section} key={header}>
                         
@@ -287,17 +217,16 @@ export default function ManageScreen() {
                             <View>
                                 
                                 <Text style={[styles.sectionHeader, isDarkMode && styles.darkSubText]}>{header}</Text>
-
+    
                                 <TextInput
                                     style={searchStyle}
                                     placeholder="Search"
                                     placeholderTextColor={isDarkMode ? "#aaa" : "#555"}
-                                    value={()=>{}}
-                                    onChangeText={()=>{}}
+                                    value={searchText}  // Set a state to track the search input
+                                    onChangeText={(text) => setSearchText(text)}
                                 >
-                                    
                                 </TextInput>
-                                <TouchableOpacity style={styles.filter} key={header} onPress={()=>{}}>
+                                <TouchableOpacity style={styles.filter} key={header} onPress={() => {}}>
                                     <FeatherIcon name="filter" color={isDarkMode ? "#fff" : "#0c0c0c"} size={20} />
                                 </TouchableOpacity>
                                 

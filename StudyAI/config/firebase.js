@@ -60,9 +60,25 @@ export const getAssignments = async () => {
     const querySnapshot = await getDocs(assignmentsRef);
     const assignments = [];
     querySnapshot.forEach((doc) => {
-      assignments.push({ id: doc.id, ...doc.data() });
+      // Ensure consistency: Use doc.id as ID if custom ID doesn't exist
+      const data = doc.data();
+      const assignment = {
+        ID: doc.id, // Fallback to Firestore doc.id if custom ID is missing
+        Title: data.Title ?? 'No Title',
+        Class: data.Class ?? 'No Class',
+        Completed: data.Completed ?? false,
+        DueDate: data.DueDate ? data.DueDate.toDate() : null,
+        EstimatedTime: data.EstimatedTime ?? 'N/A',
+        Exam: data.Exam ?? false,
+        Optional: data.Optional ?? false,
+        PrioritizeLate: data.PrioritizeLate ?? false,
+        Priority: data.Priority ?? 'Low',
+        TimeDue: data.TimeDue ?? '00:00',
+        color: data.color ?? '#000000',
+      };
+      assignments.push(assignment);
     });
-    return assignments; // Return all assignments
+    return assignments; // Return the formatted assignments
   } catch (error) {
     console.error('Error getting assignments:', error);
   }
