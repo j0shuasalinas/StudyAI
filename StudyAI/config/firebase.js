@@ -63,7 +63,7 @@ export const getAssignments = async () => {
       // Ensure consistency: Use doc.id as ID if custom ID doesn't exist
       const data = doc.data();
       const assignment = {
-        ID: doc.id, // Fallback to Firestore doc.id if custom ID is missing
+        ID: doc.id, 
         Title: data.Title ?? 'No Title',
         Class: data.Class ?? 'No Class',
         Completed: data.Completed ?? false,

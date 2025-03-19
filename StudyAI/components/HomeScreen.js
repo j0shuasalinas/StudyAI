@@ -5,6 +5,10 @@ import { createStackNavigator } from '@react-navigation/stack';
 import ManageScreen from './ManageScreen';
 import SettingsScreen from './SettingsScreen';
 import WelcomeScreen from './welcomeScreen';
+import { getAssignments } from '../config/firebase';
+import { collection } from 'firebase/firestore';
+import FeatherIcon from 'react-native-vector-icons/Feather';
+
 const createCalendarData = (daysAhead = 7) => {
   const data = [];
   const today = new Date();
@@ -34,7 +38,176 @@ const HomeScreen = ({ navigation }) => {
   const [currentIndex, setCurrentIndex] = useState(getCurrentDateIndex());
   const [miniBoxesData, setMiniBoxesData] = useState([]);
   const [miniBoxesData2, setMiniBoxesData2] = useState([]);
+
+  const [assignmentText, setAssignmentText] = useState({});
+  const [bestAssignment, setBestAssignments] = useState(null);
+
+  useEffect(() => {
+    const fetchAllAssignments = async () => {
+      const assignments = await getAssignments();
+      const today = new Date();
+      //today.setUTCHours(); // Normalize today's date
   
+      const assignmentsByDate = {};
+  
+      // Sort assignments by custom rules
+      assignments.sort((a, b) => {
+        const aDueDate = new Date(a.DueDate["seconds"] * 1000);
+        const bDueDate = new Date(b.DueDate["seconds"] * 1000);
+  
+        // Prioritize past-due assignments
+        const aIsPastDue = aDueDate < today;
+        const bIsPastDue = bDueDate < today;
+        if (aIsPastDue !== bIsPastDue) {
+          return aIsPastDue ? -1 : 1; // Past-due assignments come first
+        }
+  
+        // Prioritize exams (unless past due)
+        if (!aIsPastDue && !bIsPastDue) {
+          if (a.Exam && !b.Exam) return -1;
+          if (!a.Exam && b.Exam) return 1;
+        }
+  
+        // Sort by priority (higher priority first)
+        if (a.Priority !== b.Priority) {
+          return b.Priority - a.Priority;
+        }
+  
+        // Sort by due time (earlier times first)
+        const aTime = a.TimeDue || "23:59"; // Default to latest time if not provided
+        const bTime = b.TimeDue || "23:59";
+        return aTime.localeCompare(bTime);
+      });
+  
+      for (const assignment of assignments) {
+        const dueDate = new Date(assignment.DueDate["seconds"] * 1000);
+        dueDate.setUTCHours(0, 0, 0, 0); // Normalize due date for comparison
+  
+        let formattedDate;
+        if (dueDate < today) {
+          // If the assignment is past due, group it under "Past Due"
+          formattedDate = "Past Due";
+        } else {
+          // Otherwise, group it by its due date
+          formattedDate = `${dueDate.getMonth() + 1}/${dueDate.getDate()}`;
+        }
+  
+        if (!assignmentsByDate[formattedDate]) {
+          assignmentsByDate[formattedDate] = "Due:";
+        }
+  
+        // Limit to 3 assignments per date
+        const currentAssignments = assignmentsByDate[formattedDate].split("\n").slice(1);
+        if (currentAssignments.length < 3) {
+          let assignmentText = assignment.Title;
+  
+          // Add (o) for optional assignments
+          if (assignment.Optional) {
+            assignmentText += " (o)";
+          }
+  
+          // Add due time if available
+          if (assignment.TimeDue) {
+            assignmentText += ` [${assignment.TimeDue}]`;
+          }
+  
+          assignmentsByDate[formattedDate] += `\n${assignmentText}`;
+        } else if (currentAssignments.length === 3) {
+          assignmentsByDate[formattedDate] += `\n...`;
+        }
+      }
+  
+      // Check if today has no assignments
+      const formattedToday = `${today.getMonth() + 1}/${today.getDate()}`;
+      if (!assignmentsByDate[formattedToday]) {
+        // Recommend assignments for today
+        const recommendations = assignments
+          .filter((assignment) => {
+            const dueDate = new Date(assignment.DueDate["seconds"] * 1000);
+            dueDate.setUTCHours(0, 0, 0, 0);
+            return dueDate >= today && !assignment.Optional; // Only recommend non-optional assignments
+          })
+          .sort((a, b) => {
+            // Sort by priority, then Exam, then EstimatedTime
+            if (a.Priority !== b.Priority) {
+              return b.Priority - a.Priority;
+            }
+            if (a.Exam !== b.Exam) {
+              return b.Exam ? 1 : -1; // Exams come first
+            }
+            return (b.EstimatedTime || 0) - (a.EstimatedTime || 0); // Longer EstimatedTime comes first
+          })
+          .slice(0, 3); // Limit to 3 recommendations
+  
+        if (recommendations.length > 0) {
+          assignmentsByDate[formattedToday] = "Recommended:";
+          for (const recommendation of recommendations) {
+            let assignmentText = recommendation.Title;
+  
+            if (recommendation.Optional) {
+              assignmentText += " (o)";
+            }
+  
+            if (recommendation.DueDate) {
+              const dueDate = new Date(recommendation.DueDate["seconds"] * 1000);
+              assignmentText += ` [${dueDate.getMonth()+1}/${dueDate.getDate()}]`;
+            }
+  
+            assignmentsByDate[formattedToday] += `\n${assignmentText}`;
+          }
+        }
+      }
+  
+      setAssignmentText(assignmentsByDate);
+    };
+  
+    fetchAllAssignments();
+  }, []);
+
+  useEffect(() => {
+    const fetchAssignmentsAndGetBest = async () => {
+      const assignments = await getAssignments(); // Fetch assignments
+  
+      const today = new Date();
+      today.setUTCHours(0, 0, 0, 0);
+  
+      const validAssignments = assignments.filter((assignment) => {
+        const dueDate = new Date(assignment.DueDate["seconds"] * 1000);
+        dueDate.setUTCHours(0, 0, 0, 0);
+        return dueDate >= today && !assignment.Optional;
+      });
+  
+      if (validAssignments.length === 0) {
+        setBestAssignments(null);
+        return;
+      }
+  
+      validAssignments.sort((a, b) => {
+        const aDueDate = new Date(a.DueDate["seconds"] * 1000);
+        const bDueDate = new Date(b.DueDate["seconds"] * 1000);
+  
+        if (aDueDate.getTime() !== bDueDate.getTime()) {
+          return aDueDate.getTime() - bDueDate.getTime();
+        }
+  
+        if (a.Priority !== b.Priority) {
+          return b.Priority - a.Priority;
+        }
+  
+        if (a.Exam !== b.Exam) {
+          return b.Exam ? 1 : -1;
+        }
+  
+        return (b.EstimatedTime || 0) - (a.EstimatedTime || 0);
+      });
+  
+      const bestDueDate = new Date(validAssignments[0].DueDate["seconds"] * 1000);
+      setBestAssignments(`${validAssignments[0].Title} [${bestDueDate.getMonth()+1}/${bestDueDate.getDate()}]`);
+    };
+  
+    fetchAssignmentsAndGetBest();
+  }, []); // Add dependencies if needed
+
   useEffect(() => {
     const miniData = [];
     const today = new Date();
@@ -108,6 +281,9 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
+  const renderItem = ({ item }) => <MyListItem item={item} />;
+
+
   return (
     <View style={styles.container}>
       <View style={styles.mainBoxesContainer}>
@@ -129,21 +305,29 @@ const HomeScreen = ({ navigation }) => {
             offset: (width * 0.7 + 20) * index,
             index,
           })}
-          renderItem={({ item, index }) => {
+          renderItem={({ item }) => {
             const today = new Date();
             const formattedToday = `${today.getMonth() + 1}/${today.getDate()}`;
             const isCurrentDay = item === formattedToday;
-            
-            const [itemMonth, itemDay] = item.split('/').map(Number);
+    
+            const [itemMonth, itemDay] = item.split("/").map(Number);
             const itemDate = new Date(today.getFullYear(), itemMonth - 1, itemDay);
-
+    
             const isAfterCurrent = itemDate > today;
+            const formatted = `${itemMonth}/${itemDay}`;
+            const text = assignmentText[formatted]||"empty!";
+
+            // console.log(assignmentText);
+            
+            const pastDueText = itemDate===today ? assignmentText["PastDue"] : "";
 
             return (
               <View style={[styles.box, isAfterCurrent && styles.afterCurrentBox, isCurrentDay && styles.currentDayBox].filter(Boolean)}>
                 <Text style={[styles.text, isAfterCurrent && styles.afterCurrentText, isCurrentDay && styles.currentDayText].filter(Boolean)}>{item}</Text>
+                <Text style={[styles.textdue, isAfterCurrent && styles.afterCurrentTextDue, isCurrentDay && styles.currentDayTextDue].filter(Boolean)}>{text}</Text>
+                <Text style={styles.pastduetext}>{pastDueText}</Text>
               </View>
-            );
+            ); 
           }}
         />
       </View>
@@ -161,12 +345,19 @@ const HomeScreen = ({ navigation }) => {
 
             const isCurrentDay = item === formattedToday;
 
+            const hasAssignment = !(assignmentText[item]===undefined);
+
             return (
               <TouchableOpacity
                 style={[styles.miniBox, isCurrentDay && styles.currentDayBox]}
                 onPress={() => handleMiniBoxClick(item)}
               >
                 <Text style={styles.miniBoxText}>{item}</Text>
+                {hasAssignment && (
+                  <View style={styles.iconContainer}>
+                    <FeatherIcon name="clock" color="#e65f17" size={20} />
+                  </View>
+                )}
               </TouchableOpacity>
             );
           }}
@@ -186,12 +377,19 @@ const HomeScreen = ({ navigation }) => {
 
             const isCurrentDay = item === formattedToday;
 
+            const hasAssignment = !(assignmentText[item]===undefined);
+
             return (
               <TouchableOpacity
                 style={[styles.miniBox, isCurrentDay && styles.currentDayBox]}
                 onPress={() => handleMiniBoxClick(item)}
               >
                 <Text style={styles.miniBoxText}>{item}</Text>
+                {hasAssignment && (
+                  <View style={styles.iconContainer}>
+                    <FeatherIcon name="clock" color="#e65f17" size={20} />
+                  </View>
+                )}
               </TouchableOpacity>
             );
           }}
@@ -199,7 +397,7 @@ const HomeScreen = ({ navigation }) => {
       </View>
 
       <View style={styles.nextAssingment}>
-        <Text style={styles.assignmentItem}>Next Assignment:</Text>
+        <Text style={styles.assignmentItem}>{"Next Assignment: "+bestAssignment}</Text>
       </View>
 
       <View style={styles.topBar}>
@@ -233,7 +431,7 @@ const styles = StyleSheet.create({
   input: { width: 200, height: 40, borderWidth: 5, borderColor: "#fff", marginBottom: 10, padding: 8 },
   intro: { 
     color: '#fff', 
-    fontSize: 24, 
+    fontSize: 24,
     fontFamily: "Afacad",  
     backgroundColor: "#4d25c4", 
     borderWidth: 2, 
@@ -363,6 +561,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     alignItems: 'center',
   },
+  hasAssignment: {
+    top: -10
+  },
   currentDayBox: {
     borderWidth: 0,
     backgroundColor: '#493dba',
@@ -376,11 +577,35 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#a9a6bf',
   },
+  textdue: {
+    width: width * 0.7,
+    fontFamily: "Afacad",
+    borderColor: '#41396b',
+    fontSize: 20,
+    textAlign: 'center',
+    color: '#a9a6bf',
+  },
+  pastduetext: {
+    width: width * 0.3,
+    fontFamily: "Afacad",
+    borderColor: '#41396b',
+    fontSize: 20,
+    textAlign: 'center',
+    color: '#e84858',
+  },
   afterCurrentText: {
     width: width * 0.3,
     fontFamily: "Afacad",
     borderColor: '#41396b',
     fontSize: 30,
+    textAlign: 'center',
+    color: '#535157',
+  },
+  afterCurrentTextDue: {
+    width: width * 0.7,
+    fontFamily: "Afacad",
+    borderColor: '#41396b',
+    fontSize: 20,
     textAlign: 'center',
     color: '#535157',
   },
@@ -391,6 +616,16 @@ const styles = StyleSheet.create({
     borderRadius: 0,
     borderWidth: 0,
     fontSize: 30,
+    textAlign: 'center',
+    color: '#fff',
+  },
+  currentDayTextDue: {
+    width: width * 0.7,
+    fontFamily: "Afacad",
+    borderColor: '#661ceb',
+    borderRadius: 0,
+    borderWidth: 0,
+    fontSize: 20,
     textAlign: 'center',
     color: '#fff',
   },
@@ -411,6 +646,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   miniBox: {
+    position: 'relative', 
+    alignItems: 'center',
     width: width * 0.17,
     height: width * 0.17,
     backgroundColor: '#f2f2f2',
@@ -426,6 +663,11 @@ const styles = StyleSheet.create({
     fontFamily: "Afacad",
     color: '#000',
   },
+  iconContainer: {
+    position: 'absolute',
+    top: 0, 
+    right: 0
+  }
 });
 
 export default HomeScreen;
