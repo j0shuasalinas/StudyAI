@@ -10,10 +10,10 @@ import { Switch } from 'react-native-gesture-handler';
 import * as Font from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 
-import { auth, db } from '../config/firebase'; // Import auth and db from firebase.js
-import { collection, getDocs } from 'firebase/firestore'; // Modular Firestore functions
-import { firestore } from '../config/firebase'; // Make sure you're importing firestore
-import { addAssignment, getAssignments } from '../config/firebase'; // Adjust the path as needed
+import { auth, db } from '../config/firebase';
+import { collection, getDocs } from 'firebase/firestore'; 
+import { firestore } from '../config/firebase';
+import { addAssignment, getAssignments } from '../config/firebase';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -56,6 +56,29 @@ export default function ManageScreen() {
         }
     };
 
+    const [isFetching, setIsFetching] = useState(false);
+
+    const setup = async () => {
+        if (isFetching) return;
+        setIsFetching(true);
+
+        const updatedAssignments = await getAssignments();
+
+        setSections(prevSections => {
+            const updatedSections = [...prevSections];
+            updatedSections[1].items = updatedAssignments;
+            return updatedSections;
+        });
+
+        setIsFetching(false);
+    };
+
+    React.useEffect(() => {
+    setup();
+    }, []);
+
+    
+
     const itemTemplate = {
         ID: "",
         Title:'Assignment',
@@ -74,7 +97,7 @@ export default function ManageScreen() {
     
     
     const createAssignment = () => {
-        const newAssignment = { ...itemTemplate, ID: (sections[1].items.length + 1).toString() };
+        const newAssignment = { ...itemTemplate, ID: (Math.floor(Math.random() * 10000000)).toString() };
         setCurrentAssignment(newAssignment);
         setModalVisible(true);
     };
@@ -148,20 +171,20 @@ export default function ManageScreen() {
     
             if (dueDate >= threeDaysAgo) {
                 try {
-                    // Save the assignment to Firebase
+                    
                     await addAssignment(currentAssignment);
     
-                    // Optionally, fetch updated assignments from Firebase after saving
+                   
                     const updatedAssignments = await getAssignments();
     
-                    // Update the sections state with the new assignments from Firebase
+                    
                     setSections(prevSections => {
                         const updatedSections = [...prevSections];
-                        updatedSections[1].items = updatedAssignments;  // Replace the existing items with the updated data
+                        updatedSections[1].items = updatedAssignments;  
                         return updatedSections;
                     });
     
-                    setModalVisible(false); // Close the modal after saving the assignment
+                    setModalVisible(false);
                 } catch (error) {
                     console.error("Error saving assignment:", error);
                     alert("There was an error saving the assignment.");
@@ -222,7 +245,7 @@ export default function ManageScreen() {
                                     style={searchStyle}
                                     placeholder="Search"
                                     placeholderTextColor={isDarkMode ? "#aaa" : "#555"}
-                                    value={searchText}  // Set a state to track the search input
+                                    value={searchText}  
                                     onChangeText={(text) => setSearchText(text)}
                                 >
                                 </TextInput>
@@ -277,7 +300,12 @@ export default function ManageScreen() {
                             <Modal visible={modalVisible} transparent animationType="slide">
                                 <View style={styles.modalContainer}>
                                     <View style={styles.modalContent}>
-                                        <Text style={styles.modalTitle}>{sections[1].items.some(item => item.ID === currentAssignment.ID) ? "Edit Assignment" : "Create Assignment"}</Text>
+                                    <Text style={styles.modalTitle}>
+                                    {sections[1]?.items?.some(item => item.ID === currentAssignment?.ID)
+                                        ? "Edit Assignment"
+                                        : "Create Assignment"}
+                                    </Text>
+
                                         <Text style={styles.modalId}>{currentAssignment?.ID ? idFormat+currentAssignment?.ID : idFormat+currentAssignment?.ID}</Text>
                                         
                                         <TextInput
@@ -292,7 +320,7 @@ export default function ManageScreen() {
                                             value={currentAssignment?.Class}
                                             onChangeText={(text) => setCurrentAssignment(prev => ({ ...prev, Class: text }))}
                                         />
-                                        <TextInput
+                                         <TextInput
                                             style={styles.input}
                                             placeholder="Due Date"
                                             value={currentAssignment?.DueDate}

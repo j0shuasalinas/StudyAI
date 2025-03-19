@@ -1,9 +1,7 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore, collection, addDoc, getDocs, Timestamp } from 'firebase/firestore'; // Import Firestore functions
+import { getFirestore, collection, query, where, addDoc, getDocs, Timestamp, deleteDoc, updateDoc } from 'firebase/firestore';
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: 'AIzaSyBfRGfe8pzXWtWngoh2-M_otdBN-f3i5kI',
   authDomain: 'planit-afc74.firebaseapp.com',
@@ -14,39 +12,60 @@ const firebaseConfig = {
   measurementId: 'G-3XQ3FM3K2C',
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase services
 const auth = getAuth(app);
-const db = getFirestore(app); // Initialize Firestore
+const db = getFirestore(app); 
 
-// Export Firebase services for use in other files
 export { auth, db };
 
-// Add Assignment Function (for saving an assignment)
-export const addAssignment = async (assignmentData) => {
-  if (!auth.currentUser) {
-    console.error('User is not logged in!');
-    return;
-  }
+/*export const deleteAllAssignments = async () => {
+  if (!auth.currentUser) return;
 
   const userId = auth.currentUser.uid;
   const assignmentsRef = collection(db, 'users', userId, 'assignments');
 
-  // Convert DueDate to a Firebase Timestamp
-  const { DueDate, ...otherData } = assignmentData;
-  const dueDateTimestamp = Timestamp.fromDate(new Date(DueDate)); // Convert to Firebase Timestamp
+  try {
+    const querySnapshot = await getDocs(assignmentsRef);
+    const deletePromises = querySnapshot.docs.map((docSnapshot) => 
+      deleteDoc(doc(db, 'users', userId, 'assignments', docSnapshot.id))
+    );
+    await Promise.all(deletePromises);
+    console.log('All assignments deleted.');
+  } catch (error) {
+    console.error('Error deleting assignments:', error);
+  }
+};*/
+
+export const addAssignment = async (assignmentData) => {
+  if (!auth.currentUser) return;
+
+  const userId = auth.currentUser.uid;
+  const assignmentsRef = collection(db, 'users', userId, 'assignments');
+
+  const { DueDate, ID, ...otherData } = assignmentData;
+  let dueDateTimestamp = Timestamp.fromDate(new Date(DueDate));
+  if (isNaN(dueDateTimestamp.seconds)) {
+    dueDateTimestamp = Timestamp.fromDate(new Date());
+  }
 
   try {
-    await addDoc(assignmentsRef, { ...otherData, DueDate: dueDateTimestamp });
-    console.log('Assignment added successfully!');
+    const q = query(assignmentsRef, where('ID', '==', ID));
+    const existingAssignments = await getDocs(q);
+
+    if (!existingAssignments.empty) {
+      const assignmentDoc = existingAssignments.docs[0].ref;
+      await updateDoc(assignmentDoc, { ...otherData, DueDate: dueDateTimestamp });
+    } else {
+      const newID = Math.floor(Math.random() * 10000000);
+      await addDoc(assignmentsRef, { ID: newID, ...otherData, DueDate: dueDateTimestamp });
+    }
   } catch (error) {
-    console.error('Error adding assignment:', error);
+    console.error('Error adding/updating assignment:', error);
   }
 };
 
-// Get Assignments Function (for fetching all assignments)
+
 export const getAssignments = async () => {
   if (!auth.currentUser) {
     console.error('User is not logged in!');
@@ -60,25 +79,22 @@ export const getAssignments = async () => {
     const querySnapshot = await getDocs(assignmentsRef);
     const assignments = [];
     querySnapshot.forEach((doc) => {
-      // Ensure consistency: Use doc.id as ID if custom ID doesn't exist
-      const data = doc.data();
-      const assignment = {
-        ID: doc.id, 
-        Title: data.Title ?? 'No Title',
-        Class: data.Class ?? 'No Class',
-        Completed: data.Completed ?? false,
-        DueDate: data.DueDate ? data.DueDate.toDate() : null,
-        EstimatedTime: data.EstimatedTime ?? 'N/A',
-        Exam: data.Exam ?? false,
-        Optional: data.Optional ?? false,
-        PrioritizeLate: data.PrioritizeLate ?? false,
-        Priority: data.Priority ?? 'Low',
-        TimeDue: data.TimeDue ?? '00:00',
-        color: data.color ?? '#000000',
-      };
-      assignments.push(assignment);
+      assignments.push({ id: doc.id, ...doc.data() });
     });
-    return assignments; // Return the formatted assignments
+    for (const assignment of assignments) {
+      if (assignment.ID==="1"||assignment.ID===undefined) {
+        assignment.ID=(Math.floor(Math.random() * 10000000)).toString();
+        await addAssignment(assignment);
+      };
+      if (assignment.DueDate) {
+        assignment.DueDate = assignment.DueDate.toDate().toISOString().split('T')[0];
+      } else {
+        assignment.DueDate = new Date().toISOString().split('T')[0];
+      }
+      
+
+    }
+    return assignments;
   } catch (error) {
     console.error('Error getting assignments:', error);
   }

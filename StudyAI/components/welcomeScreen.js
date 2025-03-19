@@ -14,8 +14,8 @@ export default function WelcomeScreen() {
         </Text>
         <View style={{ alignItems: 'center' }}>
           <Image 
-            source={require("../assets/logo.png")} // Ensure correct path to the image
-            style={{ width: 350, height: 350 }} // Adjust image size
+            source={require("../assets/logo.png")} 
+            style={{ width: 350, height: 350 }} 
           />
         </View>
         <View style={{ marginTop: 24 }}>
@@ -24,7 +24,7 @@ export default function WelcomeScreen() {
             style={{
               fontFamily: 'Afacad',
               paddingVertical: 12,
-              backgroundColor: '#f95553', // Yellow color
+              backgroundColor: '#f95553',
               marginHorizontal: 28,
               borderRadius: 16,
               alignItems: 'center',

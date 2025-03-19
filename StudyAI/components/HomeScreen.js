@@ -46,49 +46,52 @@ const HomeScreen = ({ navigation }) => {
     const fetchAllAssignments = async () => {
       const assignments = await getAssignments();
       const today = new Date();
-      //today.setUTCHours(); // Normalize today's date
+      
   
       const assignmentsByDate = {};
   
-      // Sort assignments by custom rules
+      
       assignments.sort((a, b) => {
-        const aDueDate = new Date(a.DueDate["seconds"] * 1000);
-        const bDueDate = new Date(b.DueDate["seconds"] * 1000);
+        const [year, month, day] = a.DueDate.split("-").map(Number);
+        const [year2, month2, day2] = b.DueDate.split("-").map(Number);
+        const aDueDate = new Date(year, month - 1, day);
+        const bDueDate = new Date(year2, month2 - 1, day2);
   
-        // Prioritize past-due assignments
+        
         const aIsPastDue = aDueDate < today;
         const bIsPastDue = bDueDate < today;
         if (aIsPastDue !== bIsPastDue) {
-          return aIsPastDue ? -1 : 1; // Past-due assignments come first
+          return aIsPastDue ? -1 : 1; 
         }
   
-        // Prioritize exams (unless past due)
+        
         if (!aIsPastDue && !bIsPastDue) {
           if (a.Exam && !b.Exam) return -1;
           if (!a.Exam && b.Exam) return 1;
         }
   
-        // Sort by priority (higher priority first)
+        
         if (a.Priority !== b.Priority) {
           return b.Priority - a.Priority;
         }
   
-        // Sort by due time (earlier times first)
-        const aTime = a.TimeDue || "23:59"; // Default to latest time if not provided
+        
+        const aTime = a.TimeDue || "23:59";
         const bTime = b.TimeDue || "23:59";
         return aTime.localeCompare(bTime);
       });
   
       for (const assignment of assignments) {
-        const dueDate = new Date(assignment.DueDate["seconds"] * 1000);
-        dueDate.setUTCHours(0, 0, 0, 0); // Normalize due date for comparison
+        const [year, month, day] = assignment.DueDate.split("-").map(Number);
+        const dueDate = new Date(year, month - 1, day);
+        dueDate.setUTCHours(0, 0, 0, 0);
   
         let formattedDate;
         if (dueDate < today) {
-          // If the assignment is past due, group it under "Past Due"
+         
           formattedDate = "Past Due";
         } else {
-          // Otherwise, group it by its due date
+          
           formattedDate = `${dueDate.getMonth() + 1}/${dueDate.getDate()}`;
         }
   
@@ -96,17 +99,17 @@ const HomeScreen = ({ navigation }) => {
           assignmentsByDate[formattedDate] = "Due:";
         }
   
-        // Limit to 3 assignments per date
+       
         const currentAssignments = assignmentsByDate[formattedDate].split("\n").slice(1);
         if (currentAssignments.length < 3) {
           let assignmentText = assignment.Title;
   
-          // Add (o) for optional assignments
+          
           if (assignment.Optional) {
             assignmentText += " (o)";
           }
   
-          // Add due time if available
+          
           if (assignment.TimeDue) {
             assignmentText += ` [${assignment.TimeDue}]`;
           }
@@ -117,27 +120,28 @@ const HomeScreen = ({ navigation }) => {
         }
       }
   
-      // Check if today has no assignments
+      
       const formattedToday = `${today.getMonth() + 1}/${today.getDate()}`;
       if (!assignmentsByDate[formattedToday]) {
-        // Recommend assignments for today
+       
         const recommendations = assignments
           .filter((assignment) => {
-            const dueDate = new Date(assignment.DueDate["seconds"] * 1000);
+            const [year, month, day] = assignment.DueDate.split("-").map(Number);
+            const dueDate = new Date(year, month - 1, day);
             dueDate.setUTCHours(0, 0, 0, 0);
-            return dueDate >= today && !assignment.Optional; // Only recommend non-optional assignments
+            return dueDate >= today && !assignment.Optional; 
           })
           .sort((a, b) => {
-            // Sort by priority, then Exam, then EstimatedTime
+           
             if (a.Priority !== b.Priority) {
               return b.Priority - a.Priority;
             }
             if (a.Exam !== b.Exam) {
-              return b.Exam ? 1 : -1; // Exams come first
+              return b.Exam ? 1 : -1; 
             }
-            return (b.EstimatedTime || 0) - (a.EstimatedTime || 0); // Longer EstimatedTime comes first
+            return (b.EstimatedTime || 0) - (a.EstimatedTime || 0);
           })
-          .slice(0, 3); // Limit to 3 recommendations
+          .slice(0, 3);
   
         if (recommendations.length > 0) {
           assignmentsByDate[formattedToday] = "Recommended:";
@@ -149,7 +153,8 @@ const HomeScreen = ({ navigation }) => {
             }
   
             if (recommendation.DueDate) {
-              const dueDate = new Date(recommendation.DueDate["seconds"] * 1000);
+              const [year, month, day] = recommendation.DueDate.split("-").map(Number);
+              const dueDate = new Date(year, month - 1, day);
               assignmentText += ` [${dueDate.getMonth()+1}/${dueDate.getDate()}]`;
             }
   
@@ -172,7 +177,8 @@ const HomeScreen = ({ navigation }) => {
       today.setUTCHours(0, 0, 0, 0);
   
       const validAssignments = assignments.filter((assignment) => {
-        const dueDate = new Date(assignment.DueDate["seconds"] * 1000);
+        const [year, month, day] = assignment.DueDate.split("-").map(Number);
+        const dueDate = new Date(year, month - 1, day);
         dueDate.setUTCHours(0, 0, 0, 0);
         return dueDate >= today && !assignment.Optional;
       });
@@ -183,8 +189,10 @@ const HomeScreen = ({ navigation }) => {
       }
   
       validAssignments.sort((a, b) => {
-        const aDueDate = new Date(a.DueDate["seconds"] * 1000);
-        const bDueDate = new Date(b.DueDate["seconds"] * 1000);
+        const [year, month, day] = a.DueDate.split("-").map(Number);
+        const [year2, month2, day2] = b.DueDate.split("-").map(Number);
+        const aDueDate = new Date(year, month - 1, day);
+        const bDueDate = new Date(year2, month2 - 1, day2);
   
         if (aDueDate.getTime() !== bDueDate.getTime()) {
           return aDueDate.getTime() - bDueDate.getTime();
@@ -201,12 +209,12 @@ const HomeScreen = ({ navigation }) => {
         return (b.EstimatedTime || 0) - (a.EstimatedTime || 0);
       });
   
-      const bestDueDate = new Date(validAssignments[0].DueDate["seconds"] * 1000);
-      setBestAssignments(`${validAssignments[0].Title} [${bestDueDate.getMonth()+1}/${bestDueDate.getDate()}]`);
+      const [year, month, day] = validAssignments[0].DueDate.split("-").map(Number);
+      setBestAssignments(`${validAssignments[0].Title} [${month}/${day}]`);
     };
   
     fetchAssignmentsAndGetBest();
-  }, []); // Add dependencies if needed
+  }, []);
 
   useEffect(() => {
     const miniData = [];
