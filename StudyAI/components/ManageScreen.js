@@ -74,7 +74,7 @@ export default function ManageScreen() {
     };
 
     React.useEffect(() => {
-    setup();
+        setup();
     }, []);
 
     
