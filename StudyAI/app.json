@@ -19,7 +19,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#5033cd"
-      }
+      },
+      "package": "com.joshuasalinas.StudyAI"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -27,6 +28,11 @@
     "entryPoint": "./StudyAI/App.js",
     "plugins": [
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "4893d4ac-3e90-429b-9552-45c6da399e50"
+      }
+    }
   }
 }
