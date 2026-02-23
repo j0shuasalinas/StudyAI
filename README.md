@@ -1,1 +1,2 @@
 # StudyAI
+This is a program that utilizes Firebase, JavaScript, CSS, and HTML to create a homework scheduling app. It is an app that, after logging in, allows you to create, delete, and manage assignments. These assignments appear on the front page via the calendar based on assignment priority, due date, and any other settings. It allows users to remember to complete assignments and stay on track in school.
